@@ -4,9 +4,6 @@ require(khroma)
 
 batlowW <- color("batlowW")
 imola <- color("imola")
-plot(batlowW(10))
-plot(batlow(10))
-plot(imola(10))
 
 par(mfrow = c(2, 1))
 
@@ -48,6 +45,9 @@ mtext("B", side = 3, cex = 2, outer = FALSE, line = 1, adj = 0, at = -4, xpd  = 
 #  FIGURE 2
 
 require(khroma)
+
+batlowW <- color("batlowW")
+imola <- color("imola")
 
 par(mfrow = c(2, 3), oma = c(3, 5, 0, 0))
 
@@ -184,6 +184,9 @@ title(xlab = "Outbreak severity", cex.lab = 2.5, outer = TRUE, line = 1.8)
 
 require(khroma)
 
+batlowW <- color("batlowW")
+imola <- color("imola")
+
 par(mfrow = c(2, 1))
 
 par(mar = c(2, 9, 5, 4) + 0.1)
@@ -229,6 +232,9 @@ mtext("B", side = 3, cex = 2, line = 1, adj = 0, at = -0.05, xpd  = NA)
 # FIGURE 4
 
 require(khroma)
+
+batlowW <- color("batlowW")
+imola <- color("imola")
 
 fig4 <- matrix(c(s1alt, size1_0, s1a, s3alt, size3_0, s3a, s5alt, size5_0, s5a, s10alt, size10_0, s10a), 3, 4)
 
