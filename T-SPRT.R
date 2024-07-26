@@ -294,3 +294,5 @@ result5CPAs2 <- repl_SCPTAs2(5)
 result10CPAs2 <- repl_SCPTAs2(10)
 result20CPAs2 <- repl_SCPTAs2(20)
 result30CPAs2 <- repl_SCPTAs2(30)
+
+correct2 <- c(rep(1, 5), rep(0, 5))
