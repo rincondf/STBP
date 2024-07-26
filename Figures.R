@@ -20,7 +20,7 @@ points(seq(1, 13), 1 - abs(correct1 - STCHA), col = imola(10)[1], type = "o", lw
 points(seq(1, 13), 1 - abs(correct1 - STCHAa), col = imola(10)[6], type = "o", lwd = 2)
 points(seq(1, 13), 1 - abs(correct1 - STCHAb), col = imola(10)[8], type = "o", lwd = 2)
 
-mtext("A", side = 3, cex = 2, outer = FALSE, line = 1, adj = 0, at = -4, xpd  = NA)
+mtext("a", side = 3, cex = 2, outer = FALSE, line = 1, adj = 0, at = -4, xpd  = NA)
 
 abline(v = 9, lty = 3, lwd = 2)
 
@@ -37,7 +37,7 @@ axis(2, at = seq(0, 50, 10), labels = TRUE, cex.axis = 1.8, las = 2)
 
 abline(v = 9, lty = 3, lwd = 2)
 
-mtext("B", side = 3, cex = 2, outer = FALSE, line = 1, adj = 0, at = -4, xpd  = NA)
+mtext("b", side = 3, cex = 2, outer = FALSE, line = 1, adj = 0, at = -4, xpd  = NA)
 
 
 
@@ -72,7 +72,7 @@ points(levels, 1 - abs(correct2 - result30CPA1), type = "o", col = imola(10)[1],
 
 abline(v = 0.5, lty = 3, lwd = 2)
 
-mtext("A", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
+mtext("a", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
 
 
 par(mar = c(0.5, 2, 4, 2) + 0.1)
@@ -93,7 +93,7 @@ points(levels, 1 - abs(correct2 - result30CPA), type = "o", col = imola(10)[6], 
 
 abline(v = 0.5, lty = 3, lwd = 2)
 
-mtext("B", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
+mtext("b", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
 
 par(mar = c(0.5, 0, 4, 4) + 0.1)
 plot(levels, 1 - abs(correct2 - result5), type = "o", ylab = "", xlab = "", lwd = 2, cex.lab = 1.8, 
@@ -112,7 +112,7 @@ points(levels, 1 - abs(correct2 - result30CPA2), type = "o", col = imola(10)[8],
 
 abline(v = 0.5, lty = 3, lwd = 2)
 
-mtext("C", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
+mtext("c", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
 
 
 par(mar = c(2, 4, 2.5, 0) + 0.1)
@@ -135,7 +135,7 @@ points(levels, result30CPAs1, type = "o", col = imola(10)[1], lwd = 2, lty = 4)
 
 abline(v = 0.5, lty = 3, lwd = 2)
 
-mtext("D", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
+mtext("d", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
 
 par(mar = c(2, 2, 2.5, 2) + 0.1)
 plot(levels, result5s, type = "o", ylim = c(0, 9), ylab = "", 
@@ -154,7 +154,7 @@ points(levels, result30CPAs, type = "o", col = imola(10)[6], lwd = 2, lty = 4)
 
 abline(v = 0.5, lty = 3, lwd = 2)
 
-mtext("E", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
+mtext("e", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
 
 
 par(mar = c(2, 0, 2.5, 4) + 0.1)
@@ -174,7 +174,7 @@ points(levels, result30CPAs2, type = "o", col = imola(10)[8], lwd = 2, lty = 4)
 
 abline(v = 0.5, lty = 3, lwd = 2)
 
-mtext("F", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
+mtext("f", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
 
 title(xlab = "Outbreak severity", cex.lab = 2.5, outer = TRUE, line = 1.8)
 
@@ -212,7 +212,7 @@ lines(seq(0.01, 0.2, 0.001), beta_fun(seq(0.01, 0.2, 0.001), 30), lwd = 2)
 
 abline(h = 0.05, col = "grey36", lwd = 2)
 
-mtext("A", side = 3, cex = 2, line = 1, adj = 0, at = -0.05, xpd  = NA)
+mtext("a", side = 3, cex = 2, line = 1, adj = 0, at = -0.05, xpd  = NA)
 
 par(mar = c(5, 9, 2, 4) + 0.1)
 
@@ -225,7 +225,7 @@ points(means_det, size3, type = "o", lwd = 2, lty = 2, col = imola(10)[6])
 points(means_det, size5, type = "o", lwd = 2, lty = 3, col = imola(10)[6])
 points(means_det, size10, type = "o", lwd = 2, lty = 4, col = imola(10)[6])
 
-mtext("B", side = 3, cex = 2, line = 1, adj = 0, at = -0.05, xpd  = NA)
+mtext("b", side = 3, cex = 2, line = 1, adj = 0, at = -0.05, xpd  = NA)
 
 
 
