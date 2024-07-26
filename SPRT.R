@@ -74,20 +74,6 @@ proced_SPRT_cont <- function(d){
               mean = mean_Re))
 }
 
-SPRTA <- c(sum(replicate(1000, proced_SPRT_cont(1)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(2)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(3)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(4)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(5)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(6)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(7)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(8)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(9)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(10)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(11)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(12)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(13)$recommendation))/1000)
-
 
 ####
 
@@ -122,6 +108,24 @@ proced_STCH_cont <- function(d, prior){
               mean = mean_Re))
 }
 
+####
+
+## Simulations
+# Decisions
+
+SPRTA <- c(sum(replicate(1000, proced_SPRT_cont(1)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(2)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(3)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(4)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(5)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(6)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(7)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(8)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(9)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(10)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(11)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(12)$recommendation))/1000,
+           sum(replicate(1000, proced_SPRT_cont(13)$recommendation))/1000)
 
 STCHA <- c(sum(replicate(1000, proced_STCH_cont(1, 0.1)$recommendation))/1000,
            sum(replicate(1000, proced_STCH_cont(2, 0.1)$recommendation))/1000,
@@ -168,3 +172,65 @@ STCHAb <- c(sum(replicate(1000, proced_STCH_cont(1, 0.9)$recommendation))/1000,
             sum(replicate(1000, proced_STCH_cont(13, 0.1)$recommendation))/1000)
 
 correct1 <- c(rep(1, 8), rep(0, 5))
+
+
+# Sample size
+
+
+SPRTAs <- c(sum(replicate(1000, proced_SPRT_cont(1)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(2)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(3)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(4)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(5)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(6)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(7)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(8)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(9)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(10)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(11)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(12)$samples))/1000,
+            sum(replicate(1000, proced_SPRT_cont(13)$samples))/1000)
+
+STCHAs <- c(sum(replicate(1000, proced_STCH_cont(1, 0.1)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(2, 0.1)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(3, 0.1)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(4, 0.1)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(5, 0.1)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(6, 0.1)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(7, 0.1)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(8, 0.1)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(9, 0.5)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(10, 0.9)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(11, 0.9)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(12, 0.9)$samples))/1000,
+            sum(replicate(1000, proced_STCH_cont(13, 0.9)$samples))/1000)
+
+
+STCHAas <- c(sum(replicate(1000, proced_STCH_cont(1, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(2, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(3, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(4, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(5, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(6, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(7, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(8, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(9, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(10, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(11, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(12, 0.5)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(13, 0.5)$samples))/1000)
+
+
+STCHAbs <- c(sum(replicate(1000, proced_STCH_cont(1, 0.9)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(2, 0.9)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(3, 0.9)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(4, 0.9)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(5, 0.9)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(6, 0.9)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(7, 0.9)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(8, 0.9)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(9, 0.1)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(10, 0.1)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(11, 0.1)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(12, 0.1)$samples))/1000,
+             sum(replicate(1000, proced_STCH_cont(13, 0.1)$samples))/1000)
