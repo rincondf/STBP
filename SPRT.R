@@ -1,12 +1,21 @@
+# Case 1: Testing static population sizes through purely sequential sampling
+
+#####
 #SPRT
+#####
+
 
 require(truncdist)
+
+# function to estimate k parameter from NB distributions (from Rincon et al. 2021)
 
 k_est1 <- function(me) {
   a = exp(0.6043225)
   b = 1.218041
   (me^2) / ((a * me^(b)) - me)
 }
+
+# same but for simulation adding an stochastic component
 
 ka_es_r <- function(m) {
   a <- exp(0.6043225)
@@ -23,7 +32,11 @@ ka_es_r <- function(m) {
   a1
 }
 
+# value for k at the threshold
+
 k_um <- k_est1(9)
+
+# low intercept for stop line (from Binns, Nyrop and Werf, 2000)
 
 low_int_nb <- function(al, be, me0, me1, k_est){
   (log(be / (1 - al))) / (log((me1 * (me0 + k_est)) / (me0 * (me1 + k_est))))
@@ -31,6 +44,7 @@ low_int_nb <- function(al, be, me0, me1, k_est){
 
 low_um_p <- low_int_nb(al = 0.1, be = 0.1, me0 = 8, me1 = 10, k_est = k_um)
 
+# hi intercept for stop line
 
 hi_int_nb <- function(al, be, me0, me1, k_est){
   (log((1 - be) / (al))) / (log((me1 * (me0 + k_est)) / (me0 * (me1 + k_est))))
@@ -39,12 +53,16 @@ hi_int_nb <- function(al, be, me0, me1, k_est){
 
 hi_um_p <- hi_int_nb(al = 0.1, be = 0.1, me0 = 8, me1 = 10, k_est = k_um)
 
+# intercept for both lines
+
 ll_sl_nb <- function(al, be, me0, me1, k_est){
   (k_est * log((me1 + k_est) / (me0 + k_est))) /
     (log((me1 * (me0 + k_est)) / (me0 * (me1 + k_est))))
 }
 
 pen_p <- ll_sl_nb(al = 0.1, be = 0.1, me0 = 8, me1 = 10, k_est = k_um)
+
+# Functions for stop lines
 
 low_seq_c <- function(x){
   pen_p * x + low_um_p
@@ -54,6 +72,7 @@ hi_seq_c <- function(x){
   pen_p * x + hi_um_p
 }
 
+# procedure to simulte SPRT
 
 proced_SPRT_cont <- function(d){
   acu <- rep(NA, 100)
@@ -75,7 +94,11 @@ proced_SPRT_cont <- function(d){
 }
 
 
-####
+#####################################################
+# Sequential test of Bayesian posterior probabilities 
+#####################################################
+
+# Eq. 5 in the text
 
 CP.v3A <- function(dat, prd, prior) {
   lld1 <- function(x) {
@@ -87,6 +110,8 @@ CP.v3A <- function(dat, prd, prior) {
   Pr3A
 }
 
+
+# procedure to simulate Sequential test of Bayesian posterior probabilities 
 
 proced_STCH_cont <- function(d, prior){
   acu <- rep(NA, 100)
@@ -108,9 +133,11 @@ proced_STCH_cont <- function(d, prior){
               mean = mean_Re))
 }
 
-####
+##########
+# Simulations
+#########
 
-## Simulations
+
 # Decisions
 
 SPRTA <- c(sum(replicate(1000, proced_SPRT_cont(1)$recommendation))/1000,

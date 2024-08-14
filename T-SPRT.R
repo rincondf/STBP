@@ -1,7 +1,15 @@
+# Case 2: Testing dynamic population sizes through group sequential sampling
+
+#######
 #T-SPRT
+#######
+
+# Endemic and Outbreak trajectories (Table S1) (from Pedigo and Schaik 1984)
 
 m0 <- c(2, 3, 4, 7, 8, 6, 3, 2, 1)
 m1 <- c(4, 5, 16, 18, 23, 38, 34, 26, 25)
+
+# upper stop threshold (Eq. 6a in the text)
 
 upper <- function(DDs, m1, m0, ns) {
   log((1 - 0.01)/(0.01)) + (1.16 *
@@ -9,21 +17,27 @@ upper <- function(DDs, m1, m0, ns) {
                                                 ((1.16 + m0)))))
 }
 
+# lower stop threshold (Eq. 6b in the text)
+
 lower <- function(DDs, m1, m0, ns) {
   log((0.01)/(1 - 0.01)) + (1.16 *
                               cumsum(ns * log((1.16 + m1) / 
                                                 ((1.16 + m0)))))
 }
 
+# count weights (Eq. 7 in the text)
+
 we <- function(m1, m0) {
   log(m1 / m0) - log((1.16 + m1) / (1.16 + m0))
 }
 
+# testing trajectories (Eq. 8 in the text)
 
 test_traj <- function(s) {
   m0^(1-s) * m1^(s)
 }
 
+# Generation of testing trajectories from a NB distribution
 
 require(matrixStats)
 
@@ -40,6 +54,8 @@ pord_obs <- function(ns, s) {
   return(list(regular = samD, cumulative = rowCumsums(samD)))
 }
 
+
+# procedure to simulate the T-SPRT
 
 simu_SPRT <- function(s, ns) {
   m0 <- c(2, 3, 4, 7, 8, 6, 3, 2, 1)
@@ -89,6 +105,13 @@ simu_SPRT <- function(s, ns) {
   return(list(result  = resp, bouts = len))
 }
 
+
+#####################################################
+# Sequential test of Bayesian posterior probabilities 
+#####################################################
+
+
+# Procedure to simulate Sequential test of Bayesian posterior probabilities 
 
 simu_SCPTA <- function(s, ns, prior1 = 0.5) {
   m0 <- c(2, 3, 4, 7, 8, 6, 3, 2, 1)
@@ -149,7 +172,10 @@ simu_SCPTA <- function(s, ns, prior1 = 0.5) {
 }
 
 
+##########
 # Simulations
+#########
+
 # Decisions
 
 repl_SPRT <- function(ns){

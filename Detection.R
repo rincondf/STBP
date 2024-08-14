@@ -1,4 +1,7 @@
-# Detection of rare species
+# Case 3: Detecting rare species through monitoring
+
+
+
 
 CP.v3C <- function(dat, prd, prior) {
   lld1 <- function(x) {
