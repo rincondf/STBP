@@ -110,6 +110,17 @@ simu_SPRT <- function(s, ns) {
 # Sequential test of Bayesian posterior probabilities 
 #####################################################
 
+# Sequential test of Bayesian posterior probabilities (Eq. 9 in the text)
+
+CP.clo <- function(dat, prd, prior) {
+  lld1 <- function(x) {
+    prod(dnbinom(dat, mu = x, size = 1.16))
+  }
+  
+  Pr3A <- (integrate(Vectorize(lld1), lower = prd, upper = Inf)$value * prior) /
+    (integrate(Vectorize(lld1), lower = 0, upper = prd)$value * (1 - prior) + (integrate(Vectorize(lld1), lower = prd, upper = Inf)$value * prior))
+  Pr3A
+}
 
 # Procedure to simulate Sequential test of Bayesian posterior probabilities 
 
@@ -172,9 +183,9 @@ simu_SCPTA <- function(s, ns, prior1 = 0.5) {
 }
 
 
-##########
+#############
 # Simulations
-#########
+#############
 
 # Decisions
 

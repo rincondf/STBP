@@ -98,7 +98,7 @@ proced_SPRT_cont <- function(d){
 # Sequential test of Bayesian posterior probabilities 
 #####################################################
 
-# Eq. 5 in the text
+# Sequential test of Bayesian posterior probabilities (Eq. 5 in the text)
 
 CP.v3A <- function(dat, prd, prior) {
   lld1 <- function(x) {
@@ -133,9 +133,9 @@ proced_STCH_cont <- function(d, prior){
               mean = mean_Re))
 }
 
-##########
+#############
 # Simulations
-#########
+#############
 
 
 # Decisions

@@ -1,7 +1,20 @@
 # Case 3: Detecting rare species through monitoring
 
+###########################
+#Fixed-sample-size approach
+###########################
 
+# Type II error (Eq. 10b in the text and used for figure 3)
 
+beta_fun <- function(m, n) {
+  exp(-n*m)
+}
+
+#####################################################
+# Sequential test of Bayesian posterior probabilities 
+#####################################################
+
+# Sequential test of Bayesian posterior probabilities (Eq. 11 in the text)
 
 CP.v3C <- function(dat, prd, prior) {
   lld1 <- function(x) {
@@ -13,7 +26,7 @@ CP.v3C <- function(dat, prd, prior) {
   Pr3A
 }
 
-
+# Procedure to simulate Bayesian posterior probabilities
 
 simu_SCPT_C <- function(s, ns, prior = 0.5) {
   
@@ -65,8 +78,15 @@ simu_SCPT_C <- function(s, ns, prior = 0.5) {
 }
 
 
-means_det <- c(0.01, 0.05, 0.1, 0.15, 0.2)
+#############
+# Simulations
+#############
 
+means_det <- c(0.01, 0.05, 0.1, 0.15, 0.2) # tested means
+
+# Bayesian posterior probabilities
+
+# Type II error
 
 beta1 <- rep(NA, 5)
 
@@ -94,8 +114,7 @@ for(i in 1: 5) {
   beta10[i] <- length(which(replicate(1000, simu_SCPT_C(s = means_det[i], ns = 10)$result) > 0) )/1000
 }
 
-
-
+# Sample size
 
 size1 <- rep(NA, 5)
 
@@ -123,6 +142,8 @@ for(i in 1: 5) {
 }
 
 
+# Fixed-sample-size approach
+
 betaGreen30 <- rep(NA, 5)
 
 for(i in 1: 5) {
@@ -140,8 +161,6 @@ betaGreen10 <- rep(NA, 5)
 for(i in 1: 5) {
   betaGreen10[i] <- length(which(replicate(1000, sum(sample(rpois(lambda = means_det[i], n = 100000), size = 10, replace = F))) > 0))/1000
 }
-
-
 
 
 size1_0 <- mean(replicate(1000, simu_SCPT_C(s = 0, ns = 1)$bouts))
