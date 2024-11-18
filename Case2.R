@@ -27,7 +27,7 @@ lower <- function(DDs, m1, m0, ns) {
 
 # count weights (Eq. 7 in the text)
 
-we <- function(m1, m0) {
+calc_weight <- function(m1, m0) {
   log(m1 / m0) - log((1.16 + m1) / (1.16 + m0))
 }
 
@@ -41,67 +41,69 @@ test_traj <- function(s) {
 
 require(matrixStats)
 
-pord_obs <- function(ns, s) {
-  test_traj <- function(s) {
-    m0^(1-s) * m1^(s)
-  }
-  samD <- matrix(NA, ns, 9)
-  mi <- test_traj(s)
-  for(i in 1: 9) {
-    samD[, i] <- sample(rnbinom(10000, size = 1.16, 
-                                mu = mi[i]), 10)
-  }
-  return(list(regular = samD, cumulative = rowCumsums(samD)))
-}
+# produce_obs <- function(ns, s) {
+#   samD <- matrix(NA, ns, 9)
+#   mu <- test_traj(s)
+#   for(i in 1: 9) {
+#     samD[, i] <- sample(rnbinom(10000, size = 1.16, 
+#                                 mu = mu[i]), 10)
+#   }
+#   return(list(regular = samD, cumulative = rowCumsums(samD)))
+# }
 
 
 # procedure to simulate the T-SPRT
 
 simu_SPRT <- function(s, ns) {
-  m0 <- c(2, 3, 4, 7, 8, 6, 3, 2, 1)
-  m1 <- c(4, 5, 16, 18, 23, 38, 34, 26, 25)
-  
-  pord_obs <- function(ns, s) {
-    test_traj <- function(s) {
-      m0^(1-s) * m1^(s)
-    }
+  produce_obs <- function(ns, s) {
     samD <- matrix(NA, ns, 9)
-    mi <- test_traj(s)
+    mu <- test_traj(s)
     for(i in 1: 9) {
       samD[, i] <- sample(rnbinom(10000, size = 1.16, 
-                                  mu = mi[i]), ns)
+                                  mu = mu[i]), ns)
     }
     return(list(regular = samD, cumulative = rowCumsums(samD)))
   }
-  
-  test1 <- pord_obs(ns = ns, s = s)$regular
-  cU <- upper(seq(1, 9), m1 = m1, m0 = m0, ns = ns)
-  cL <- lower(seq(1, 9), m1 = m1, m0 = m0, ns = ns)
-  numb <- cumsum(we(m1, m0) * colSums(test1))
-  
-  abo <- which(numb > cU)
-  belo <- which(numb < cL)
-  
-  if(is.na(abo[1]) & !is.na(belo[1])) {
+
+  test1 <- produce_obs(ns = ns, s = s)$regular
+  upper_criterion <- upper(seq(1, 9), m1 = m1, m0 = m0, ns = ns)
+  lower_criterion <- lower(seq(1, 9), m1 = m1, m0 = m0, ns = ns)
+  weight_count <- cumsum(calc_weight(m1, m0) * colSums(test1))
+
+  # find index where weight count is greater than the upper criterion
+  above <- which(weight_count > upper_criterion)
+  # find index where weight count is less than the upper criterion
+  below <- which(weight_count < lower_criterion)
+
+  # If there is no value above, but there is one below, response is 1
+  # set len to the index where weight count became less than the lower criterion
+  if(is.na(above[1]) && !is.na(below[1])) {
     resp <- 1
-    len <- belo[1]
+    len <- below[1]
   }
-  
-  if(!is.na(abo[1]) & is.na(belo[1])) {
+
+  # If there is a value above, but there is no value below, response is 0
+  # set len to the index where weight count became greater than the upper criterion
+  if(!is.na(above[1]) && is.na(below[1])) {
     resp <- 0
-    len <- abo[1]
+    len <- above[1]
   }
-  
-  if(is.na(abo[1]) & is.na(belo[1])) {
+
+  # If there are no values either above or below, response is 0
+  # set len to the total number of bouts, 9
+  if(is.na(above[1]) && is.na(below[1])) {
     resp <- 0
     len <- 9
   }
-  
-  if(!is.na(abo[1]) & !is.na(belo[1])) {
-    len <- c(abo[1], belo[1])[which.min(c(abo[1], belo[1]))]
-    if(length(abo) < length(belo)) resp <- 1 else resp <- 0
+
+  # If there are values both above and below...
+  if(!is.na(above[1]) && !is.na(below[1])) {
+    # Select whichever index the weight count crossed a criteria first
+    len <- c(above[1], below[1]) |> min()
+    # The response is 1 if there are less values above than below, otherwise the response is 0
+    if(length(above) < length(below)) resp <- 1 else resp <- 0
   }
-  
+
   return(list(result  = resp, bouts = len))
 }
 

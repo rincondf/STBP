@@ -9,128 +9,152 @@ require(truncdist)
 
 # function to estimate k parameter from NB distributions (from Rincon et al. 2021)
 
-k_est1 <- function(me) {
+estimate_k <- function(mean) {
   a = exp(0.6043225)
   b = 1.218041
-  (me^2) / ((a * me^(b)) - me)
+  (mean^2) / ((a * mean^(b)) - mean)
 }
 
 # same but for simulation adding an stochastic component
 
-ka_es_r <- function(m) {
+estimate_k_stoch <- function(mean) {
   a <- exp(0.6043225)
   b <- 1.218041
-  times <- length(m)
+  times <- length(mean)
   a1 <- rep(NA, times)
-  for(i in 1:times) {
-    a1[i] <- (m[i]^2) /
-      ((a * m[i]^(b) *
-          exp(rtrunc(1, "norm", a = log(1 / (a * m[i]^(b - 1))),
+  for (i in 1:times) {
+    a1[i] <- (mean[i]^2) /
+      ((a * mean[i]^(b) *
+          exp(rtrunc(1, "norm", a = log(1 / (a * mean[i]^(b - 1))),
                      b = Inf, mean = 0, sd = 0.3222354)))
-       - m[i])
+       - mean[i])
   }
   a1
 }
 
 # value for k at the threshold
 
-k_um <- k_est1(9)
+k_9 <- estimate_k(9)
 
-# low intercept for stop line (from Binns, Nyrop and Werf, 2000)
+# low intercept for stop line for negative binomial distribution (from Binns, Nyrop and Werf, 2000)
 
-low_int_nb <- function(al, be, me0, me1, k_est){
-  (log(be / (1 - al))) / (log((me1 * (me0 + k_est)) / (me0 * (me1 + k_est))))
+low_int_nb <- function(alpha, beta, mu0, mu1, k_est){
+  (log(beta / (1 - alpha))) / (log((mu1 * (mu0 + k_est)) / (mu0 * (mu1 + k_est))))
 }
 
-low_um_p <- low_int_nb(al = 0.1, be = 0.1, me0 = 8, me1 = 10, k_est = k_um)
+lower_criterion_intercept <- low_int_nb(alpha = 0.1, beta = 0.1, mu0 = 8, mu1 = 10, k_est = k_9)
 
 # hi intercept for stop line
 
-hi_int_nb <- function(al, be, me0, me1, k_est){
-  (log((1 - be) / (al))) / (log((me1 * (me0 + k_est)) / (me0 * (me1 + k_est))))
+hi_int_nb <- function(alpha, beta, mu0, mu1, k_est){
+  (log((1 - beta) / (alpha))) / (log((mu1 * (mu0 + k_est)) / (mu0 * (mu1 + k_est))))
 }
 
 
-hi_um_p <- hi_int_nb(al = 0.1, be = 0.1, me0 = 8, me1 = 10, k_est = k_um)
+higher_criterion_intercept <- hi_int_nb(alpha = 0.1, beta = 0.1, mu0 = 8, mu1 = 10, k_est = k_9)
 
-# intercept for both lines
+# slope for both lines
 
-ll_sl_nb <- function(al, be, me0, me1, k_est){
-  (k_est * log((me1 + k_est) / (me0 + k_est))) /
-    (log((me1 * (me0 + k_est)) / (me0 * (me1 + k_est))))
+criterion_slope_nb <- function(alpha, beta, mu0, mu1, k_est){
+  (k_est * log((mu1 + k_est) / (mu0 + k_est))) /
+    (log((mu1 * (mu0 + k_est)) / (mu0 * (mu1 + k_est))))
 }
 
-pen_p <- ll_sl_nb(al = 0.1, be = 0.1, me0 = 8, me1 = 10, k_est = k_um)
+criteria_slope <- criterion_slope_nb(alpha = 0.1, beta = 0.1, mu0 = 8, mu1 = 10, k_est = k_9)
 
 # Functions for stop lines
 
-low_seq_c <- function(x){
-  pen_p * x + low_um_p
+low_criterion_line <- function(x){
+  criteria_slope * x + lower_criterion_intercept
 }
 
-hi_seq_c <- function(x){
-  pen_p * x + hi_um_p
+hi_criterion_line <- function(x){
+  criteria_slope * x + higher_criterion_intercept
 }
 
 # procedure to simulte SPRT
 
-proced_SPRT_cont <- function(d){
-  acu <- rep(NA, 100)
-  fi <- rnbinom(mu = d, size = ka_es_r(d), n = 6000)
-  mean_Re <- mean(fi)
+SPRT_case1 <- function(d){
+  samples <- rep(NA, 100)
+  pool <- rnbinom(mu = d, size = estimate_k_stoch(d), n = 6000)
+  mean_Re <- mean(pool)
   for(i in 1:100){
-    acu[i] <- sample(fi, size = 1, replace = F)
-    fi <- fi[-match(acu[i], fi)]
-    dat <- cumsum(acu)[i]
-    if ((dat < low_seq_c(i)) | (dat > hi_seq_c(i))) break
+    samples[i] <- sample(pool, size = 1, replace = FALSE)
+    pool <- pool[-match(samples[i], pool)]
+    dat <- cumsum(samples)[i]
+    if ((dat < low_criterion_line(i)) || (dat > hi_criterion_line(i))) break
   }
-  if (dat < low_seq_c(i)) {
+  if (dat < low_criterion_line(i)) {
     resp <- 1
   } else {
     resp <- 0
   }
-  return(list(estimate = dat / i, samples = i, recommendation = resp, col_data = acu,
-              mean = mean_Re))
+  return(list(estimate = dat / i,
+              samples = i,
+              recommendation = resp,
+              col_data = samples,
+              mean = mean_Re)
+             )
 }
 
 
 #####################################################
-# Sequential test of Bayesian posterior probabilities 
+# Sequential test of Bayesian posterior probabilities
 #####################################################
 
 # Sequential test of Bayesian posterior probabilities (Eq. 5 in the text)
 
-CP.v3A <- function(dat, prd, prior) {
-  lld1 <- function(x) {
-    prod(dnbinom(dat, mu = x, size = k_um))
+calc_posterior <- function(data, hypothesis, prior) {
+  likelihood <- function(x) {
+    prod(dnbinom(data, mu = x, size = k_9))
   }
-  
-  Pr3A <- (integrate(Vectorize(lld1), lower = prd, upper = Inf)$value * prior) /
-    (integrate(Vectorize(lld1), lower = 0, upper = prd)$value * (1 - prior) + (integrate(Vectorize(lld1), lower = prd, upper = Inf)$value * prior))
-  Pr3A
+
+  null <- prior * integrate(
+                    Vectorize(likelihood),
+                    lower = hypothesis,
+                    upper = Inf
+                  )$value
+  alt <- (1 - prior) * integrate(
+                         Vectorize(likelihood),
+                         lower = 0,
+                         upper = hypothesis
+                       )$value
+  posterior <- null / (alt + null)
+  posterior
 }
 
 
-# procedure to simulate Sequential test of Bayesian posterior probabilities 
+# procedure to simulate Sequential test of Bayesian posterior probabilities
 
-proced_STCH_cont <- function(d, prior){
-  acu <- rep(NA, 100)
-  fi <- rnbinom(mu = d, size = ka_es_r(d), n = 6000)
-  mean_Re <- mean(fi)
-  probs <- c(prior, rep(NA, 99))
+STBP_case1 <- function(pop_mean, prior){
+  samples <- rep(NA, 100)
+  pool <- rnbinom(mu = pop_mean, size = estimate_k_stoch(pop_mean), n = 6000)
+  mean_Re <- mean(pool)
+  posteriors <- c(prior, rep(NA, 99))
   for(i in 1:100){
-    acu[i] <- sample(fi, size = 1, replace = F)
-    fi <- fi[-match(acu[i], fi)]
-    probs[i + 1] <- CP.v3A(dat = acu[i], prd = 9, prior = probs[i])
-    if ((length(!is.na(acu)) > 3) & ((probs[i + 1] < 0.01) | (probs[i + 1] > 0.99))) break
+    samples[i] <- sample(pool, size = 1, replace = FALSE)
+    pool <- pool[-match(samples[i], pool)]
+    posteriors[i + 1] <- calc_posterior(data = samples[i],
+                                        hypothesis = 9,
+                                        prior = posteriors[i]
+                                        )
+    if ((length(!is.na(samples)) > 3) &&
+        ((posteriors[i + 1] < 0.01) ||
+        (posteriors[i + 1] > 0.99))
+       ) break
   }
-  if (probs[i + 1] < 0.01) {
+  if (posteriors[i + 1] < 0.01) {
     resp <- 1
   } else {
     resp <- 0
   }
-  return(list(Probabilities = probs, samples = i, recommendation = resp, col_data = acu,
-              mean = mean_Re))
+  return(list(
+    Probabilities = posteriors,
+    samples = i,
+    recommendation = resp,
+    col_data = samples,
+    mean = mean_Re
+  ))
 }
 
 #############
@@ -140,63 +164,63 @@ proced_STCH_cont <- function(d, prior){
 
 # Decisions
 
-SPRTA <- c(sum(replicate(1000, proced_SPRT_cont(1)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(2)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(3)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(4)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(5)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(6)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(7)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(8)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(9)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(10)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(11)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(12)$recommendation))/1000,
-           sum(replicate(1000, proced_SPRT_cont(13)$recommendation))/1000)
+SPRTA <- c(sum(replicate(1000, SPRT_case1(1)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(2)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(3)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(4)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(5)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(6)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(7)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(8)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(9)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(10)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(11)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(12)$recommendation))/1000,
+           sum(replicate(1000, SPRT_case1(13)$recommendation))/1000)
 
-STCHA <- c(sum(replicate(1000, proced_STCH_cont(1, 0.1)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(2, 0.1)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(3, 0.1)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(4, 0.1)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(5, 0.1)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(6, 0.1)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(7, 0.1)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(8, 0.1)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(9, 0.5)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(10, 0.9)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(11, 0.9)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(12, 0.9)$recommendation))/1000,
-           sum(replicate(1000, proced_STCH_cont(13, 0.9)$recommendation))/1000)
-
-
-STCHAa <- c(sum(replicate(1000, proced_STCH_cont(1, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(2, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(3, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(4, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(5, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(6, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(7, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(8, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(9, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(10, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(11, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(12, 0.5)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(13, 0.5)$recommendation))/1000)
+STCHA <- c(sum(replicate(1000, STBP_case1(1, 0.1)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(2, 0.1)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(3, 0.1)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(4, 0.1)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(5, 0.1)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(6, 0.1)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(7, 0.1)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(8, 0.1)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(9, 0.5)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(10, 0.9)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(11, 0.9)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(12, 0.9)$recommendation))/1000,
+           sum(replicate(1000, STBP_case1(13, 0.9)$recommendation))/1000)
 
 
-STCHAb <- c(sum(replicate(1000, proced_STCH_cont(1, 0.9)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(2, 0.9)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(3, 0.9)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(4, 0.9)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(5, 0.9)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(6, 0.9)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(7, 0.9)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(8, 0.9)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(9, 0.1)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(10, 0.1)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(11, 0.1)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(12, 0.1)$recommendation))/1000,
-            sum(replicate(1000, proced_STCH_cont(13, 0.1)$recommendation))/1000)
+STCHAa <- c(sum(replicate(1000, STBP_case1(1, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(2, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(3, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(4, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(5, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(6, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(7, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(8, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(9, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(10, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(11, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(12, 0.5)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(13, 0.5)$recommendation))/1000)
+
+
+STCHAb <- c(sum(replicate(1000, STBP_case1(1, 0.9)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(2, 0.9)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(3, 0.9)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(4, 0.9)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(5, 0.9)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(6, 0.9)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(7, 0.9)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(8, 0.9)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(9, 0.1)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(10, 0.1)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(11, 0.1)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(12, 0.1)$recommendation))/1000,
+            sum(replicate(1000, STBP_case1(13, 0.1)$recommendation))/1000)
 
 correct1 <- c(rep(1, 8), rep(0, 5))
 
@@ -204,60 +228,60 @@ correct1 <- c(rep(1, 8), rep(0, 5))
 # Sample size
 
 
-SPRTAs <- c(sum(replicate(1000, proced_SPRT_cont(1)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(2)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(3)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(4)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(5)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(6)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(7)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(8)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(9)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(10)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(11)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(12)$samples))/1000,
-            sum(replicate(1000, proced_SPRT_cont(13)$samples))/1000)
+SPRTAs <- c(sum(replicate(1000, SPRT_case1(1)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(2)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(3)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(4)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(5)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(6)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(7)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(8)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(9)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(10)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(11)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(12)$samples))/1000,
+            sum(replicate(1000, SPRT_case1(13)$samples))/1000)
 
-STCHAs <- c(sum(replicate(1000, proced_STCH_cont(1, 0.1)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(2, 0.1)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(3, 0.1)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(4, 0.1)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(5, 0.1)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(6, 0.1)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(7, 0.1)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(8, 0.1)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(9, 0.5)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(10, 0.9)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(11, 0.9)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(12, 0.9)$samples))/1000,
-            sum(replicate(1000, proced_STCH_cont(13, 0.9)$samples))/1000)
-
-
-STCHAas <- c(sum(replicate(1000, proced_STCH_cont(1, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(2, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(3, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(4, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(5, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(6, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(7, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(8, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(9, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(10, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(11, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(12, 0.5)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(13, 0.5)$samples))/1000)
+STCHAs <- c(sum(replicate(1000, STBP_case1(1, 0.1)$samples))/1000,
+            sum(replicate(1000, STBP_case1(2, 0.1)$samples))/1000,
+            sum(replicate(1000, STBP_case1(3, 0.1)$samples))/1000,
+            sum(replicate(1000, STBP_case1(4, 0.1)$samples))/1000,
+            sum(replicate(1000, STBP_case1(5, 0.1)$samples))/1000,
+            sum(replicate(1000, STBP_case1(6, 0.1)$samples))/1000,
+            sum(replicate(1000, STBP_case1(7, 0.1)$samples))/1000,
+            sum(replicate(1000, STBP_case1(8, 0.1)$samples))/1000,
+            sum(replicate(1000, STBP_case1(9, 0.5)$samples))/1000,
+            sum(replicate(1000, STBP_case1(10, 0.9)$samples))/1000,
+            sum(replicate(1000, STBP_case1(11, 0.9)$samples))/1000,
+            sum(replicate(1000, STBP_case1(12, 0.9)$samples))/1000,
+            sum(replicate(1000, STBP_case1(13, 0.9)$samples))/1000)
 
 
-STCHAbs <- c(sum(replicate(1000, proced_STCH_cont(1, 0.9)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(2, 0.9)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(3, 0.9)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(4, 0.9)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(5, 0.9)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(6, 0.9)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(7, 0.9)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(8, 0.9)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(9, 0.1)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(10, 0.1)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(11, 0.1)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(12, 0.1)$samples))/1000,
-             sum(replicate(1000, proced_STCH_cont(13, 0.1)$samples))/1000)
+STCHAas <- c(sum(replicate(1000, STBP_case1(1, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(2, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(3, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(4, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(5, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(6, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(7, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(8, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(9, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(10, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(11, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(12, 0.5)$samples))/1000,
+             sum(replicate(1000, STBP_case1(13, 0.5)$samples))/1000)
+
+
+STCHAbs <- c(sum(replicate(1000, STBP_case1(1, 0.9)$samples))/1000,
+             sum(replicate(1000, STBP_case1(2, 0.9)$samples))/1000,
+             sum(replicate(1000, STBP_case1(3, 0.9)$samples))/1000,
+             sum(replicate(1000, STBP_case1(4, 0.9)$samples))/1000,
+             sum(replicate(1000, STBP_case1(5, 0.9)$samples))/1000,
+             sum(replicate(1000, STBP_case1(6, 0.9)$samples))/1000,
+             sum(replicate(1000, STBP_case1(7, 0.9)$samples))/1000,
+             sum(replicate(1000, STBP_case1(8, 0.9)$samples))/1000,
+             sum(replicate(1000, STBP_case1(9, 0.1)$samples))/1000,
+             sum(replicate(1000, STBP_case1(10, 0.1)$samples))/1000,
+             sum(replicate(1000, STBP_case1(11, 0.1)$samples))/1000,
+             sum(replicate(1000, STBP_case1(12, 0.1)$samples))/1000,
+             sum(replicate(1000, STBP_case1(13, 0.1)$samples))/1000)
