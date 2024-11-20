@@ -106,7 +106,11 @@ SPRT_case1 <- function(d){
 
 calc_posterior <- function(data, hypothesis, prior) {
   likelihood <- function(x) {
-    prod(dnbinom(data, mu = x, size = k_9))
+    prod(dnbinom(data,
+                 mu = x,
+                 size = if(estimate_k(x) < 0 || is.nan(estimate_k(x))) 0
+                        else estimate_k(x)
+                ))
   }
 
   null <- prior * integrate(
