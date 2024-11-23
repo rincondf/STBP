@@ -19,22 +19,21 @@ beta_fun <- function(m, n) {
 calc_posterior_case3 <- function(data,
                            hypothesis,
                            likelihood_func,
-                           prior=0.5,
-                           lower_bnd=-Inf,
-                           upper_bnd=Inf) {
+                           prior,
+                           upper_bnd = Inf) {
   likelihood <- function(x) {
     prod(likelihood_func(data, x))
   }
 
-  null <- prior *
+  H1 <- prior *
             likelihood(hypothesis)
-  alt <- (1 - prior) *
+  H0 <- (1 - prior) *
             integrate(
                Vectorize(likelihood),
-               lower = lower_bnd,
-               upper = hypothesis
+               lower = hypothesis,
+               upper = Inf
             )$value
-  posterior <- null / (alt + null)
+  posterior <- H1 / (H0 + H1)
   posterior
 }
 
@@ -43,14 +42,14 @@ STBP_case3 <- function(s, ns, prior = 0.5) {
   # generate population pool to sample from
   pool <- rpois(100000, lambda = s)
   # function to sample from the pool
-  produce_obs <- function(ns, s) {
+  produce_obs <- function(ns) {
     samD <- matrix(NA, ns, 20)
     for(i in 1: 20) {
       samD[, i] <- sample(pool, ns, replace = FALSE)
     }
     return(list(regular = samD))
   }
-  samples <- produce_obs(ns = ns, s = s)$regular
+  samples <- produce_obs(ns = ns)$regular
 
   likelihood_func <- function(data, lambda) {
     dpois(data, lambda)
@@ -59,11 +58,8 @@ STBP_case3 <- function(s, ns, prior = 0.5) {
                0,
                likelihood_func,
                prior = prior,
-               lower_bnd = 0,
-               lower_criterion = 0.001,
-               upper_criterion = 0.999,
-               early_return = FALSE,
-               min_iterations = 0)
+               lower_criterion = 0.0001,
+               upper_criterion = 0.9999)
   posteriors = test$probabilities
   len = test$decision_indices$first
   response = test$recommendation

@@ -12,15 +12,17 @@ source("STBP.R")
 # (from Rincon et al. 2021)
 
 estimate_k <- function(mean) {
-  a = exp(0.6043225)
+  a = 1.830012
   b = 1.218041
   (mean^2) / ((a * mean^(b)) - mean)
 }
 
-# same but for simulation adding an stochastic component
+# same but for simulation adding an stochastic component the standard
+# deviation of the random component is the mean squared error of the mean-
+# variance model fit by Rincon et al. (2021)
 
 estimate_k_stoch <- function(mean) {
-  a <- exp(0.6043225)
+  a <- 1.830012
   b <- 1.218041
   times <- length(mean)
   a1 <- rep(NA, times)
@@ -85,7 +87,7 @@ hi_criterion_line <- function(x){
   criteria_slope * x + higher_criterion_intercept
 }
 
-# procedure to simulte SPRT
+# procedure to simulate SPRT
 SPRT_case1 <- function(d){
   samples <- rep(NA, 100)
   pool <- rnbinom(mu = d, size = estimate_k_stoch(d), n = 6000)
@@ -126,16 +128,16 @@ STBP_case1 <- function(pop_mean, prior){
   likelihood_func <- function(data, mu) {
     dnbinom(data,
             mu = mu,
-            size = if(estimate_k(mu) < 0 || is.nan(estimate_k(mu))) 0
+            size = if(estimate_k(mu) < 0 | is.nan(estimate_k(mu))) 0
                    else estimate_k(mu)
      )
   }
   test <- stbp(data= samples,
-               hypothesis = 9,
+               hypotheses = 9,
                likelihood_func = likelihood_func,
                prior = prior,
-               lower_bnd = 0,
-               early_return = TRUE)
+               lower_criterion = 0.01,
+               upper_criterion = 0.99)
   return(list(
     Probabilities = test$probabilities,
     samples = test$num_iterations,
@@ -273,3 +275,32 @@ STCHAbs <- c(sum(replicate(1000, STBP_case1(1, 0.9)$samples))/1000,
              sum(replicate(1000, STBP_case1(11, 0.1)$samples))/1000,
              sum(replicate(1000, STBP_case1(12, 0.1)$samples))/1000,
              sum(replicate(1000, STBP_case1(13, 0.1)$samples))/1000)
+
+
+#########
+# Metrics
+#########
+
+# Overall error rate
+sum(1 - (1 - abs(correct1 - SPRTA))) / 13 # for SPRT
+sum(1 - (1 - abs(correct1 - STCHA))) / 13 # for STBP with correct init priors
+sum(1 - (1 - abs(correct1 - STCHAa))) / 13 # for STBP with naive init priors
+sum(1 - (1 - abs(correct1 - STCHAb))) / 13 # for STBP with incorrect init priors
+
+# Type II error
+sum(1 - (1 - abs(correct1[9:13] - SPRTA[9:13]))) / 5 # for SPRT
+sum(1 - (1 - abs(correct1[9:13] - STCHA[9:13]))) / 5 # for STBP with correct init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHAa[9:13]))) / 5 # for STBP with naive init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHAb[9:13]))) / 5 # for STBP with incorrect init priors
+
+# Type I error
+sum(1 - (1 - abs(correct1[1:8] - SPRTA[1:8]))) / 8 # for SPRT
+sum(1 - (1 - abs(correct1[1:8] - STCHA[1:8]))) / 8 # for STBP with correct init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHAa[1:8]))) / 8 # for STBP with naive init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHAb[1:8]))) / 8 # for STBP with incorrect init priors
+
+# Mean sample sizes required
+mean(SPRTAs)
+mean(STCHAs)
+mean(STCHAas)
+mean(STCHAbs)

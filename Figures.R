@@ -48,7 +48,7 @@ require(khroma)
 
 batlowW <- color("batlowW")
 imola <- color("imola")
-
+levels <- seq(0.1, 1, 0.1)
 par(mfrow = c(2, 3), oma = c(3, 5, 0, 0))
 
 

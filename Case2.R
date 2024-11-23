@@ -44,6 +44,8 @@ produce_obs <- function(ns, s) {
 require(matrixStats)
 source("STBP.R")
 
+# Simulation of the T-SPRT
+
 simu_SPRT <- function(s, ns) {
 
   samples <- produce_obs(ns = ns, s = s)$regular
@@ -108,11 +110,8 @@ STBP_case2 <- function(s, ns, prior1 = 0.5) {
                trajectory,
                likelihood_func,
                prior = prior1,
-               lower_bnd = 0,
                lower_criterion = 0.1,
-               upper_criterion = 0.9,
-               early_return = TRUE,
-               min_iterations = 0)
+               upper_criterion = 0.9)
   posteriors = test$probabilities
   len = test$num_iterations
   response = test$recommendation
@@ -288,3 +287,142 @@ result20CPAs2 <- repl_SCPTAs2(20)
 result30CPAs2 <- repl_SCPTAs2(30)
 
 correct2 <- c(rep(1, 5), rep(0, 5))
+
+
+
+
+
+
+#########
+# Metrics
+#########
+
+# Overall error rate
+
+# T-SPRT
+mean(c(mean(1 - (1 - abs(correct2 - result5))),
+       mean(1 - (1 - abs(correct2 - result10))),
+       mean(1 - (1 - abs(correct2 - result20))),
+       mean(1 - (1 - abs(correct2 - result30)))))
+
+# STBP with correct init priors
+mean(c(mean(1 - (1 - abs(correct2 - result5CPA))),
+       mean(1 - (1 - abs(correct2 - result10CPA))),
+       mean(1 - (1 - abs(correct2 - result20CPA))),
+       mean(1 - (1 - abs(correct2 - result30CPA)))))
+
+# STBP with naive init priors
+mean(c(mean(1 - (1 - abs(correct2 - result5CPA1))),
+       mean(1 - (1 - abs(correct2 - result10CPA1))),
+       mean(1 - (1 - abs(correct2 - result20CPA1))),
+       mean(1 - (1 - abs(correct2 - result30CPA1)))))
+
+# STBP with incorrect init priors
+mean(c(mean(1 - (1 - abs(correct2 - result5CPA2))),
+       mean(1 - (1 - abs(correct2 - result10CPA2))),
+       mean(1 - (1 - abs(correct2 - result20CPA2))),
+       mean(1 - (1 - abs(correct2 - result30CPA2)))))
+
+
+# Overall error rate for STPB excluding n = 5 
+
+# STBP with correct init priors
+mean(c(
+  mean(1 - (1 - abs(correct2 - result10CPA))),
+  mean(1 - (1 - abs(correct2 - result20CPA))),
+  mean(1 - (1 - abs(correct2 - result30CPA)))))
+
+# STBP with naive init priors
+mean(c(
+  mean(1 - (1 - abs(correct2 - result10CPA1))),
+  mean(1 - (1 - abs(correct2 - result20CPA1))),
+  mean(1 - (1 - abs(correct2 - result30CPA1)))))
+
+# STBP with incorrect init priors
+mean(c(
+  mean(1 - (1 - abs(correct2 - result10CPA2))),
+  mean(1 - (1 - abs(correct2 - result20CPA2))),
+  mean(1 - (1 - abs(correct2 - result30CPA2)))))
+
+
+
+# Type I error
+
+# T-SPRT
+mean(c(mean(1 - (1 - abs(correct2[1:4] - result5[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result10[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result20[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result30[1:4])))))
+
+# STBP with correct init priors
+mean(c(mean(1 - (1 - abs(correct2[1:4] - result5CPA[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result10CPA[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result20CPA[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result30CPA[1:4])))))
+
+# STBP with naive init priors
+mean(c(mean(1 - (1 - abs(correct2[1:4] - result5CPA1[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result10CPA1[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result20CPA1[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result30CPA1[1:4])))))
+
+# STBP with incorrect init priors
+mean(c(mean(1 - (1 - abs(correct2[1:4] - result5CPA2[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result10CPA2[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result20CPA2[1:4]))),
+       mean(1 - (1 - abs(correct2[1:4] - result30CPA2[1:4])))))
+
+
+
+# Type I error for STPB excluding n = 5 
+
+# STBP with correct init priors
+mean(c(
+  mean(1 - (1 - abs(correct2[1:4] - result10CPA[1:4]))),
+  mean(1 - (1 - abs(correct2[1:4] - result20CPA[1:4]))),
+  mean(1 - (1 - abs(correct2[1:4] - result30CPA[1:4])))))
+
+# STBP with naive init priors
+mean(c(
+  mean(1 - (1 - abs(correct2[1:4] - result10CPA1[1:4]))),
+  mean(1 - (1 - abs(correct2[1:4] - result20CPA1[1:4]))),
+  mean(1 - (1 - abs(correct2[1:4] - result30CPA1[1:4])))))
+
+# STBP with incorrect init priors
+mean(c(
+  mean(1 - (1 - abs(correct2[1:4] - result10CPA2[1:4]))),
+  mean(1 - (1 - abs(correct2[1:4] - result20CPA2[1:4]))),
+  mean(1 - (1 - abs(correct2[1:4] - result30CPA2[1:4])))))
+
+
+
+# Type II error
+
+mean(c(mean(1 - (1 - abs(correct2[5:10] - result5[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result10[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result20[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result30[5:10])))))
+
+mean(c(mean(1 - (1 - abs(correct2[5:10] - result5CPA[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result10CPA[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result20CPA[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result30CPA[5:10])))))
+
+mean(c(mean(1 - (1 - abs(correct2[5:10] - result5CPA1[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result10CPA1[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result20CPA1[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result30CPA1[5:10])))))
+
+mean(c(mean(1 - (1 - abs(correct2[5:10] - result5CPA2[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result10CPA2[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result20CPA2[5:10]))),
+       mean(1 - (1 - abs(correct2[5:10] - result30CPA2[5:10])))))
+
+
+
+
+
+
+
+
+
