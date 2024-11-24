@@ -32,17 +32,26 @@ stbp <- function(data,
                  upper_bnd = Inf,
                  lower_criterion = 0.01,
                  upper_criterion = 0.99) {
+  
+  # useful to treat data as a matrix to to able to process group or
+  # single sequential data
+  
+  if(is.vector(data)) data <- matrix(data, 1, length(data))
+  
   # If hypothesis is just a single repeated value,
   # make a vector of that value repeated as many times as there are bouts.
   # This makes it so that the user can input either a single hypothesis,
   # or a trajectory of hypotheses.
-  if(length(hypotheses) == 1) hypotheses <- rep(hypotheses, length(data))
+  
+  if(length(hypotheses) == 1) hypotheses <- rep(hypotheses, ncol(data))
 
   # Init vector with length equal to number of sampling bouts
   # and with initial prior as its first value
-  posteriors <- c(prior, rep(NA, length(data) - 1))
-  for(i in seq_along(data)) {
-    bout = data[i]
+  posteriors <- c(prior, rep(NA, ncol(data) - 1))
+  for(i in 1: ncol(data)) {
+    if(posteriors[i] < 0.001) posteriors[i] <- 0.001
+    if(posteriors[i] > 0.999) posteriors[i] <- 0.999
+    bout = data[, i]
     posteriors[i + 1] = stbp_posterior(bout,
                                      hypotheses[i],
                                      likelihood_func,

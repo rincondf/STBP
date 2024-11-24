@@ -27,7 +27,7 @@ abline(v = 9, lty = 3, lwd = 2)
 par(mar = c(5, 9, 2, 2) + 0.1)
 
 plot(seq(1, 13), SPRTAs, type = "o", ylim = c(0, 50), ylab = "Average No. of\nsamples\n", 
-     xlab = "Population size", lwd = 2, cex.lab = 1.8, cex.axis = 1.8,
+     xlab = "Individuals per sampling unit", lwd = 2, cex.lab = 1.8, cex.axis = 1.8,
      yaxt = "n")
 points(seq(1, 13), STCHAs, col = imola(10)[1], type = "o", lwd = 2)
 points(seq(1, 13), STCHAas, col = imola(10)[6], type = "o", lwd = 2)
@@ -216,7 +216,7 @@ mtext("a", side = 3, cex = 2, line = 1, adj = 0, at = -0.05, xpd  = NA)
 
 par(mar = c(5, 9, 2, 4) + 0.1)
 
-plot(means_det, size1, type = "o", ylab = "Average No. of\nsampling bouts\n", xlab = "Mean individuals per sampling unit", 
+plot(means_det, size1, type = "o", ylab = "Average No. of\nsampling bouts\n", xlab = "Individuals per sampling unit", 
      lwd = 2, cex.lab = 1.8, cex.axis = 1.8, ylim = c(0, 20), col = imola(10)[6], yaxt = "n")
 
 axis(2, at = seq(0, 20, 5), labels = TRUE, cex.axis = 1.8, las = 2)

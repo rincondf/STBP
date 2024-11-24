@@ -84,9 +84,9 @@ simu_SPRT <- function(s, ns) {
   if(!is.na(above[1]) && !is.na(below[1])) {
     # Select whichever index the weight count crossed a criteria first
     len <- c(above[1], below[1]) |> min()
-    # The response is 1 if there are less values above than below,
+    # The response is 1 if the first value is above,
     # otherwise the response is 0
-    if(length(above) < length(below)) resp <- 1 else resp <- 0
+    if(above[1] < below[1]) resp <- 1 else resp <- 0
   }
 
   return(list(result  = resp, bouts = len))
@@ -110,8 +110,8 @@ STBP_case2 <- function(s, ns, prior1 = 0.5) {
                trajectory,
                likelihood_func,
                prior = prior1,
-               lower_criterion = 0.1,
-               upper_criterion = 0.9)
+               lower_criterion = 0.05,
+               upper_criterion = 0.95)
   posteriors = test$probabilities
   len = test$num_iterations
   response = test$recommendation
@@ -424,5 +424,39 @@ mean(c(mean(1 - (1 - abs(correct2[5:10] - result5CPA2[5:10]))),
 
 
 
+mean(c(mean(result5s),
+       mean(result10s),
+       mean(result20s),
+       mean(result30s)))
+
+mean(c(mean(result5CPAs),
+       mean(result10CPAs),
+       mean(result20CPAs),
+       mean(result30CPAs)))
+
+mean(c(mean(result5CPAs1),
+       mean(result10CPAs1),
+       mean(result20CPAs1),
+       mean(result30CPAs1)))
 
 
+mean(c(mean(result5CPAs2),
+       mean(result10CPAs2),
+       mean(result20CPAs2),
+       mean(result30CPAs2)))
+
+
+
+
+
+mean(c(mean(result10CPAs),
+       mean(result20CPAs),
+       mean(result30CPAs)))
+
+mean(c(mean(result10CPAs2),
+       mean(result20CPAs2),
+       mean(result30CPAs2)))
+
+mean(c(mean(result10CPAs1),
+       mean(result20CPAs1),
+       mean(result30CPAs1)))

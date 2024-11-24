@@ -37,6 +37,61 @@ calc_posterior_case3 <- function(data,
   posterior
 }
 
+# Version of stpb function for simple hypotheses
+
+STBP_simpleH <- function(data,
+                         hypotheses,
+                         likelihood_func,
+                         prior = 0.5,
+                         upper_bnd = Inf,
+                         lower_criterion,
+                         upper_criterion) {
+  
+  # useful to treat data as a matrix to to able to process group or
+  # single sequential data
+  
+  if(is.vector(data)) data <- matrix(data, 1, length(data))
+  
+  # If hypothesis is just a single repeated value,
+  # make a vector of that value repeated as many times as there are bouts.
+  # This makes it so that the user can input either a single hypothesis,
+  # or a trajectory of hypotheses.
+  
+  if(length(hypotheses) == 1) hypotheses <- rep(hypotheses, ncol(data))
+  
+  # Init vector with length equal to number of sampling bouts
+  # and with initial prior as its first value
+  posteriors <- c(prior, rep(NA, ncol(data) - 1))
+  for(i in 1: ncol(data)) {
+    bout = data[, i]
+    posteriors[i + 1] = calc_posterior_case3(bout,
+                                             hypotheses[i],
+                                             likelihood_func,
+                                             prior = posteriors[i],
+                                             upper_bnd = upper_bnd)
+    # Break from iteration early if early_return is true,
+    # the minimum iterations have been reached, and
+    # if either of the decision criteria have been reached
+    if(((posteriors[i + 1] < lower_criterion) ||
+        (posteriors[i + 1] > upper_criterion))
+    ) break
+  }
+  
+  response <- if(posteriors[i + 1] < lower_criterion) 1 else 0
+  indices_above <- which(posteriors > upper_criterion)
+  indices_below <- which(posteriors < lower_criterion)
+  
+  return(list(
+    probabilities = posteriors,
+    recommendation = response,
+    num_iterations = i,
+    decision_indices = list(
+      above = indices_above,
+      below = indices_below
+    )
+  ))
+}
+
 # Procedure to simulate Bayesian posterior probabilities
 STBP_case3 <- function(s, ns, prior = 0.5) {
   # generate population pool to sample from
@@ -50,26 +105,26 @@ STBP_case3 <- function(s, ns, prior = 0.5) {
     return(list(regular = samD))
   }
   samples <- produce_obs(ns = ns)$regular
-
+  
   likelihood_func <- function(data, lambda) {
     dpois(data, lambda)
   }
-  test <- stbp(samples,
-               0,
-               likelihood_func,
-               prior = prior,
-               lower_criterion = 0.0001,
-               upper_criterion = 0.9999)
+  test <- STBP_simpleH(samples,
+                       0,
+                       likelihood_func,
+                       prior = prior,
+                       lower_criterion = 0.0001,
+                       upper_criterion = 0.9999)
   posteriors = test$probabilities
-  len = test$decision_indices$first
+  len = test$num_iterations
   response = test$recommendation
   above = test$decision_indices$above
-
+  
   return(list(result = response,
-            bouts = len,
-            pr = posteriors,
-            data = samples,
-            track = above))
+              bouts = len,
+              pr = posteriors,
+              data = samples,
+              track = above))
 }
 
 
