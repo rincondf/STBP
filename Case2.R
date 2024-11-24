@@ -291,8 +291,6 @@ correct2 <- c(rep(1, 5), rep(0, 5))
 
 
 
-
-
 #########
 # Metrics
 #########
@@ -305,13 +303,13 @@ mean(c(mean(1 - (1 - abs(correct2 - result5))),
        mean(1 - (1 - abs(correct2 - result20))),
        mean(1 - (1 - abs(correct2 - result30)))))
 
-# STBP with correct init priors
+# STBP with naive init priors
 mean(c(mean(1 - (1 - abs(correct2 - result5CPA))),
        mean(1 - (1 - abs(correct2 - result10CPA))),
        mean(1 - (1 - abs(correct2 - result20CPA))),
        mean(1 - (1 - abs(correct2 - result30CPA)))))
 
-# STBP with naive init priors
+# STBP with correct init priors
 mean(c(mean(1 - (1 - abs(correct2 - result5CPA1))),
        mean(1 - (1 - abs(correct2 - result10CPA1))),
        mean(1 - (1 - abs(correct2 - result20CPA1))),
@@ -326,13 +324,13 @@ mean(c(mean(1 - (1 - abs(correct2 - result5CPA2))),
 
 # Overall error rate for STPB excluding n = 5 
 
-# STBP with correct init priors
+# STBP with naive init priors
 mean(c(
   mean(1 - (1 - abs(correct2 - result10CPA))),
   mean(1 - (1 - abs(correct2 - result20CPA))),
   mean(1 - (1 - abs(correct2 - result30CPA)))))
 
-# STBP with naive init priors
+# STBP with correct init priors
 mean(c(
   mean(1 - (1 - abs(correct2 - result10CPA1))),
   mean(1 - (1 - abs(correct2 - result20CPA1))),
@@ -354,13 +352,13 @@ mean(c(mean(1 - (1 - abs(correct2[1:4] - result5[1:4]))),
        mean(1 - (1 - abs(correct2[1:4] - result20[1:4]))),
        mean(1 - (1 - abs(correct2[1:4] - result30[1:4])))))
 
-# STBP with correct init priors
+# STBP with naive init priors
 mean(c(mean(1 - (1 - abs(correct2[1:4] - result5CPA[1:4]))),
        mean(1 - (1 - abs(correct2[1:4] - result10CPA[1:4]))),
        mean(1 - (1 - abs(correct2[1:4] - result20CPA[1:4]))),
        mean(1 - (1 - abs(correct2[1:4] - result30CPA[1:4])))))
 
-# STBP with naive init priors
+# STBP with correct init priors
 mean(c(mean(1 - (1 - abs(correct2[1:4] - result5CPA1[1:4]))),
        mean(1 - (1 - abs(correct2[1:4] - result10CPA1[1:4]))),
        mean(1 - (1 - abs(correct2[1:4] - result20CPA1[1:4]))),
@@ -376,13 +374,13 @@ mean(c(mean(1 - (1 - abs(correct2[1:4] - result5CPA2[1:4]))),
 
 # Type I error for STPB excluding n = 5 
 
-# STBP with correct init priors
+# STBP with naive init priors
 mean(c(
   mean(1 - (1 - abs(correct2[1:4] - result10CPA[1:4]))),
   mean(1 - (1 - abs(correct2[1:4] - result20CPA[1:4]))),
   mean(1 - (1 - abs(correct2[1:4] - result30CPA[1:4])))))
 
-# STBP with naive init priors
+# STBP with correct init priors
 mean(c(
   mean(1 - (1 - abs(correct2[1:4] - result10CPA1[1:4]))),
   mean(1 - (1 - abs(correct2[1:4] - result20CPA1[1:4]))),
@@ -398,65 +396,69 @@ mean(c(
 
 # Type II error
 
+# T-SPRT
 mean(c(mean(1 - (1 - abs(correct2[5:10] - result5[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result10[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result20[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result30[5:10])))))
 
+# STBP with naive init priors
 mean(c(mean(1 - (1 - abs(correct2[5:10] - result5CPA[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result10CPA[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result20CPA[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result30CPA[5:10])))))
 
+# STBP with correct init priors
 mean(c(mean(1 - (1 - abs(correct2[5:10] - result5CPA1[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result10CPA1[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result20CPA1[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result30CPA1[5:10])))))
 
+# STBP with incorrect init priors
 mean(c(mean(1 - (1 - abs(correct2[5:10] - result5CPA2[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result10CPA2[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result20CPA2[5:10]))),
        mean(1 - (1 - abs(correct2[5:10] - result30CPA2[5:10])))))
 
+# Overall average number of sampling bouts
 
-
-
-
-
-
+# T-SPRT
 mean(c(mean(result5s),
        mean(result10s),
        mean(result20s),
        mean(result30s)))
 
+# STBP with naive init priors
 mean(c(mean(result5CPAs),
        mean(result10CPAs),
        mean(result20CPAs),
        mean(result30CPAs)))
 
+# STBP with correct init priors
 mean(c(mean(result5CPAs1),
        mean(result10CPAs1),
        mean(result20CPAs1),
        mean(result30CPAs1)))
 
-
+# STBP with incorrect init priors
 mean(c(mean(result5CPAs2),
        mean(result10CPAs2),
        mean(result20CPAs2),
        mean(result30CPAs2)))
 
+# Average number of sampling bouts excluding n = 5
 
-
-
-
+# STBP with naive init priors
 mean(c(mean(result10CPAs),
        mean(result20CPAs),
        mean(result30CPAs)))
 
-mean(c(mean(result10CPAs2),
-       mean(result20CPAs2),
-       mean(result30CPAs2)))
-
+# STBP with correct init priors
 mean(c(mean(result10CPAs1),
        mean(result20CPAs1),
        mean(result30CPAs1)))
+
+# STBP with incorrect init priors
+mean(c(mean(result10CPAs2),
+       mean(result20CPAs2),
+       mean(result30CPAs2)))
