@@ -98,6 +98,7 @@ simu_SPRT <- function(s, ns) {
 #####################################################
 
 # Procedure to simulate Sequential test of Bayesian posterior probabilities
+
 STBP_case2 <- function(s, ns, prior1 = 0.5) {
   trajectory <- test_traj(0.5)
   samples <- produce_obs(ns = ns, s = s)$regular

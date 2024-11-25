@@ -116,7 +116,8 @@ SPRT_case1 <- function(d){
 # Sequential test of Bayesian posterior probabilities
 #####################################################
 
-# procedure to simulate Sequential test of Bayesian posterior probabilities
+# Procedure to simulate Sequential test of Bayesian posterior probabilities
+
 STBP_case1 <- function(pop_mean, prior){
   samples <- rep(NA, 100)
   pool <- rnbinom(mu = pop_mean, size = estimate_k_stoch(pop_mean), n = 6000)
