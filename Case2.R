@@ -290,8 +290,6 @@ result30CPAs2 <- repl_SCPTAs2(30)
 correct2 <- c(rep(1, 5), rep(0, 5))
 
 
-
-
 #########
 # Metrics
 #########

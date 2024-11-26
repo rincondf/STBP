@@ -170,21 +170,21 @@ for(i in 1: 5) {
 }
 
 
-size1_0 <- replicate(1000, STBP_case3(s = 0, ns = 1)$bouts) |>
-           mean()
-size3_0 <- replicate(1000, STBP_case3(s = 0, ns = 3)$bouts) |>
-           mean()
-size5_0 <- replicate(1000, STBP_case3(s = 0, ns = 5)$bouts) |>
-           mean()
-size10_0 <- replicate(1000, STBP_case3(s = 0, ns = 10)$bouts) |>
-            mean()
+# Sample sizes when the species is actually absent
 
+# With naive priors
+size1_0 <- STBP_case3(s = 0, ns = 1)$bouts
+size3_0 <- STBP_case3(s = 0, ns = 3)$bouts
+size5_0 <- STBP_case3(s = 0, ns = 5)$bouts
+size10_0 <- STBP_case3(s = 0, ns = 10)$bouts
 
+# With good reasons to expect the species present (low credibility for H1)
 s1alt <- STBP_case3(s = 0, ns = 1, prior = 0.1)$bouts
 s3alt <- STBP_case3(s = 0, ns = 3, prior = 0.1)$bouts
 s5alt <- STBP_case3(s = 0, ns = 5, prior = 0.1)$bouts
 s10alt <- STBP_case3(s = 0, ns = 10, prior = 0.1)$bouts
 
+# With good reasons to expect the species absent (high credibility for H1)
 s1a <- STBP_case3(s = 0, ns = 1, prior = 0.9)$bouts
 s3a <- STBP_case3(s = 0, ns = 3, prior = 0.9)$bouts
 s5a <- STBP_case3(s = 0, ns = 5, prior = 0.9)$bouts
