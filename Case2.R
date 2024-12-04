@@ -36,7 +36,7 @@ produce_obs <- function(ns, s) {
   mu <- test_traj(s)
   for(i in 1: 9) {
     samD[, i] <- sample(rnbinom(10000, size = 1.16,
-                                mu = mu[i]), ns)
+                                mu = mu[i]), ns, replace = FALSE)
   }
   return(list(regular = samD, cumulative = rowCumsums(samD)))
 }
