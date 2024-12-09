@@ -124,18 +124,21 @@ STBP_case2 <- function(s, ns, prior1 = 0.5) {
 #############
 # Simulations
 #############
+require(furrr)
+set.seed(123)
+plan(multisession, workers=13)
+
 
 # Decisions
 
 repl_SPRT <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000, simu_SPRT(levels[i], ns)$result) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~simu_SPRT(., ns)$result |>
+                replicate(n=1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -147,15 +150,12 @@ result30 <- repl_SPRT(30)
 
 repl_SCPTA1 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-  priors <- levels
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000,
-                           STBP_case2(levels[i], ns, prior1 = priors[i])$result
-                          ) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns, prior1 = .)$result |>
+                replicate(n=1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -168,13 +168,12 @@ result30CPA1 <- repl_SCPTA1(30)
 
 repl_SCPTA <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000, STBP_case2(levels[i], ns)$result) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns)$result |>
+                replicate(n=1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -188,15 +187,12 @@ result30CPA <- repl_SCPTA(30)
 
 repl_SCPTA2 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-  priors <- 1-levels
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000,
-                           STBP_case2(levels[i], ns, prior1 = priors[i])$result
-                          ) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns, prior1 = 1 - .)$result |>
+                replicate(n=1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -211,13 +207,12 @@ result30CPA2 <- repl_SCPTA2(30)
 
 repl_SPRTs <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000, simu_SPRT(levels[i], ns)$bouts) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~simu_SPRT(., ns)$bouts |>
+                replicate(n=1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -229,15 +224,13 @@ result30s <- repl_SPRTs(30)
 
 repl_SCPTAs1 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-  priors <- levels
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000,
-                           STBP_case2(levels[i], ns, prior1 = priors[i])$bouts
-                          ) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns, prior1 = .)$bouts |>
+                replicate(n=1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
+  result
   result
 }
 
@@ -250,14 +243,12 @@ result30CPAs1 <- repl_SCPTAs1(30)
 
 repl_SCPTAs <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000,
-                           STBP_case2(levels[i], ns)$bouts) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns)$bouts |>
+                replicate(n=1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -270,15 +261,13 @@ result30CPAs <- repl_SCPTAs(30)
 
 repl_SCPTAs2 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-  priors <- 1-levels
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000,
-                           STBP_case2(levels[i], ns, prior1 = priors[i])$bouts
-                          ) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns, prior1 = 1 - .)$bouts |>
+                replicate(n=1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
+  result
   result
 }
 
@@ -371,7 +360,7 @@ mean(c(mean(1 - (1 - abs(correct2[1:4] - result5CPA2[1:4]))),
 
 
 
-# Type I error for STPB excluding n = 5 
+# Type I error for STPB excluding n = 5
 
 # STBP with naive init priors
 mean(c(

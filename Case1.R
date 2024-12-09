@@ -151,67 +151,51 @@ STBP_case1 <- function(pop_mean, prior){
 #############
 # Simulations
 #############
+require(furrr)
+set.seed(123)
+plan(multisession, workers=13)
 
+correct_prior <- function(hypothesis) {
+  if (hypothesis == 9) return(0.5)
+  ifelse(hypothesis < 9, 0.1, 0.9)
+}
+incorrect_prior <- function(hypothesis) {
+  ifelse(hypothesis >= 9, 0.1, 0.9)
+}
 
 # Decisions
 
-SPRTA <- c(sum(replicate(1000, SPRT_case1(1)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(2)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(3)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(4)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(5)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(6)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(7)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(8)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(9)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(10)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(11)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(12)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(13)$recommendation))/1000)
+SPRTA <- (1:13) |>
+          future_map_dbl(
+            ~SPRT_case1(.)$recommendation |>
+               replicate(n=1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
-STCHA <- c(sum(replicate(1000, STBP_case1(1, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(2, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(3, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(4, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(5, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(6, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(7, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(8, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(9, 0.5)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(10, 0.9)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(11, 0.9)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(12, 0.9)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(13, 0.9)$recommendation))/1000)
+STCHA <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., correct_prior(.))$recommendation |>
+               replicate(n=1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
+STCHAa <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., 0.5)$recommendation |>
+               replicate(n=1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
-STCHAa <- c(sum(replicate(1000, STBP_case1(1, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(2, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(3, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(4, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(5, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(6, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(7, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(8, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(9, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(10, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(11, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(12, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(13, 0.5)$recommendation))/1000)
-
-
-STCHAb <- c(sum(replicate(1000, STBP_case1(1, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(2, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(3, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(4, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(5, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(6, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(7, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(8, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(9, 0.1)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(10, 0.1)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(11, 0.1)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(12, 0.1)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(13, 0.1)$recommendation))/1000)
+STCHAb <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., incorrect_prior(.))$recommendation |>
+               replicate(n=1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
 correct1 <- c(rep(1, 8), rep(0, 5))
 
@@ -219,64 +203,37 @@ correct1 <- c(rep(1, 8), rep(0, 5))
 # Sample size
 
 
-SPRTAs <- c(sum(replicate(1000, SPRT_case1(1)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(2)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(3)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(4)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(5)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(6)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(7)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(8)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(9)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(10)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(11)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(12)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(13)$samples))/1000)
+SPRTAs <- (1:13) |>
+          future_map_dbl(
+            ~SPRT_case1(.)$samples |>
+               replicate(n=1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
-STCHAs <- c(sum(replicate(1000, STBP_case1(1, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(2, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(3, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(4, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(5, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(6, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(7, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(8, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(9, 0.5)$samples))/1000,
-            sum(replicate(1000, STBP_case1(10, 0.9)$samples))/1000,
-            sum(replicate(1000, STBP_case1(11, 0.9)$samples))/1000,
-            sum(replicate(1000, STBP_case1(12, 0.9)$samples))/1000,
-            sum(replicate(1000, STBP_case1(13, 0.9)$samples))/1000)
+STCHAs <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., correct_prior(.))$samples |>
+               replicate(n=1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
+STCHAas <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., 0.5)$samples |>
+               replicate(n=1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
-STCHAas <- c(sum(replicate(1000, STBP_case1(1, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(2, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(3, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(4, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(5, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(6, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(7, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(8, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(9, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(10, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(11, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(12, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(13, 0.5)$samples))/1000)
-
-
-STCHAbs <- c(sum(replicate(1000, STBP_case1(1, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(2, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(3, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(4, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(5, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(6, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(7, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(8, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(9, 0.1)$samples))/1000,
-             sum(replicate(1000, STBP_case1(10, 0.1)$samples))/1000,
-             sum(replicate(1000, STBP_case1(11, 0.1)$samples))/1000,
-             sum(replicate(1000, STBP_case1(12, 0.1)$samples))/1000,
-             sum(replicate(1000, STBP_case1(13, 0.1)$samples))/1000)
-
+STCHAbs <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., incorrect_prior(.))$samples |>
+               replicate(n=1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
 #########
 # Metrics

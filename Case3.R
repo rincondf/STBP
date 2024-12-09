@@ -54,6 +54,9 @@ STBP_case3 <- function(s, ns, prior = 0.5) {
 #############
 # Simulations
 #############
+require(furrr)
+set.seed(123)
+plan(multisession, workers=13)
 
 means_det <- c(0.01, 0.05, 0.1, 0.15, 0.2) # tested means
 
@@ -61,113 +64,121 @@ means_det <- c(0.01, 0.05, 0.1, 0.15, 0.2) # tested means
 
 # Type II error
 
-beta1 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  beta1[i] <- (1000 |>
-                replicate(STBP_case3(s = means_det[i], ns = 1)$result) > 0) |>
-                which() |>
-                length() / 1000
-}
-
-
-beta3 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  beta3[i] <- (1000 |>
-                replicate(STBP_case3(s = means_det[i], ns = 3)$result) > 0) |>
-                which() |>
-                length() / 1000
-}
+beta1 <- means_det |> future_map_dbl(
+            ~((STBP_case3(s = ., ns = 1)$result) |>
+              replicate(n=1000) > 0) |>
+              which() |>
+              length() /
+              1000,
+            .options = furrr_options(seed = 123)
+          )
 
 
-beta5 <- rep(NA, 5)
+beta3 <- means_det |> future_map_dbl(
+            ~((STBP_case3(s = ., ns = 3)$result) |>
+              replicate(n=1000) > 0) |>
+              which() |>
+              length() /
+              1000,
+            .options = furrr_options(seed = 123)
+          )
 
-for(i in 1: 5) {
-  beta5[i] <- (1000 |>
-                replicate(STBP_case3(s = means_det[i], ns = 5)$result) > 0) |>
-                which() |>
-                length() / 1000
-}
 
-beta10 <- rep(NA, 5)
 
-for(i in 1: 5) {
-  beta10[i] <- (1000 |>
-                replicate(STBP_case3(s = means_det[i], ns = 10)$result) > 0) |>
-                which() |>
-                length() / 1000
-}
+beta5 <- means_det |> future_map_dbl(
+          ~((STBP_case3(s = ., ns = 5)$result) |>
+            replicate(n=1000) > 0) |>
+            which() |>
+            length() /
+            1000,
+            .options = furrr_options(seed = 123)
+          )
+
+beta10 <- means_det |> future_map_dbl(
+            ~((STBP_case3(s = ., ns = 10)$result) |>
+              replicate(n=1000) > 0) |>
+              which() |>
+              length() /
+              1000,
+            .options = furrr_options(seed = 123)
+          )
 
 # Sample size
 
-size1 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  size1[i] <- replicate(1000, STBP_case3(s = means_det[i], ns = 1)$bouts) |>
-              mean()
-}
-
-size3 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  size3[i] <- replicate(1000, STBP_case3(s = means_det[i], ns = 3)$bouts) |>
-              mean()
-}
+size1 <- means_det |> future_map_dbl(
+            ~((STBP_case3(s = ., ns = 1)$bouts) |>
+              replicate(n=1000) > 0) |>
+              which() |>
+              length() /
+              1000,
+            .options = furrr_options(seed = 123)
+          )
 
 
-size5 <- rep(NA, 5)
+size3 <- means_det |> future_map_dbl(
+            ~((STBP_case3(s = ., ns = 3)$bouts) |>
+              replicate(n=1000) > 0) |>
+              which() |>
+              length() /
+              1000,
+            .options = furrr_options(seed = 123)
+          )
 
-for(i in 1: 5) {
-  size5[i] <- replicate(1000, STBP_case3(s = means_det[i], ns = 5)$bouts) |>
-              mean()
-}
 
-size10 <- rep(NA, 5)
 
-for(i in 1: 5) {
-  size10[i] <- replicate(1000, STBP_case3(s = means_det[i], ns = 10)$bouts) |>
-               mean()
-}
+size5 <- means_det |> future_map_dbl(
+          ~((STBP_case3(s = ., ns = 5)$bouts) |>
+            replicate(n=1000) > 0) |>
+            which() |>
+            length() /
+            1000,
+            .options = furrr_options(seed = 123)
+        )
+
+size10 <- means_det |> future_map_dbl(
+            ~((STBP_case3(s = ., ns = 10)$bouts) |>
+              replicate(n=1000) > 0) |>
+              which() |>
+              length() /
+              1000,
+            .options = furrr_options(seed = 123)
+          )
 
 
 # Fixed-sample-size approach
 
-betaGreen30 <- rep(NA, 5)
+betaGreen30 <- means_det |> future_map_dbl(
+                ~(rpois(lambda = ., n = 100000) |>
+                    sample(size = 30, replace = FALSE) |>
+                    sum() |>
+                    replicate(n = 1000) > 0) |>
+                  which() |>
+                  length() /
+                  1000,
+                .options = furrr_options(seed = 123)
+              )
 
-for(i in 1: 5) {
-  betaGreen30[i] <- (1000 |>
-                     replicate(rpois(lambda = means_det[i], n = 100000) |>
-                               sample(size = 30, replace = FALSE) |>
-                               sum()) > 0
-                              ) |>
-                     which() |>
-                     length() / 1000
-}
+betaGreen20 <- means_det |> future_map_dbl(
+                ~(rpois(lambda = ., n = 100000) |>
+                    sample(size = 20, replace = FALSE) |>
+                    sum() |>
+                    replicate(n = 1000) > 0) |>
+                  which() |>
+                  length() /
+                  1000,
+                .options = furrr_options(seed = 123)
+              )
 
-betaGreen20 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  betaGreen20[i] <- (1000 |>
-                     replicate(rpois(lambda = means_det[i], n = 100000) |>
-                               sample(size = 20, replace = FALSE) |>
-                               sum()) > 0
-                              ) |>
-                     which() |>
-                     length() / 1000
-}
-
-betaGreen10 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  betaGreen10[i] <- (1000 |>
-                     replicate(rpois(lambda = means_det[i], n = 100000)|>
-                               sample(size = 10, replace = FALSE) |>
-                               sum()) > 0
-                              ) |>
-                     which() |>
-                     length() / 1000
-}
+betaGreen10 <- means_det |> future_map_dbl(
+                ~(rpois(lambda = ., n = 100000) |>
+                    sample(size = 10, replace = FALSE) |>
+                    sum() |>
+                    replicate(n = 1000) > 0) |>
+                  which() |>
+                  length() /
+                  1000,
+                .options = furrr_options(seed = 123)
+              )
 
 
 # Sample sizes when the species is actually absent
