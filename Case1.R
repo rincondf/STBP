@@ -151,9 +151,19 @@ STBP_case1 <- function(pop_mean, prior){
 #############
 # Simulations
 #############
+
+# For the sake of efficiency, this code runs simulations with future’s parallel 
+# processing capabilities using the package furrr.
+
+# Simulations can also be run with conventional, sequential processing. 
+# Code provided in Seq_simulations.R
+
 require(furrr)
 set.seed(123)
-plan(multisession, workers=13)
+
+ncores <- 13 # Set the number of available cores
+
+plan(multisession, workers = ncores)
 
 correct_prior <- function(hypothesis) {
   if (hypothesis == 9) return(0.5)
@@ -168,7 +178,7 @@ incorrect_prior <- function(hypothesis) {
 SPRTA <- (1:13) |>
           future_map_dbl(
             ~SPRT_case1(.)$recommendation |>
-               replicate(n=1000) |>
+               replicate(n = 1000) |>
                mean(),
             .options = furrr_options(seed = 123)
           )
@@ -176,7 +186,7 @@ SPRTA <- (1:13) |>
 STCHA <- (1:13) |>
           future_map_dbl(
             ~STBP_case1(., correct_prior(.))$recommendation |>
-               replicate(n=1000) |>
+               replicate(n = 1000) |>
                mean(),
             .options = furrr_options(seed = 123)
           )
@@ -184,7 +194,7 @@ STCHA <- (1:13) |>
 STCHAa <- (1:13) |>
           future_map_dbl(
             ~STBP_case1(., 0.5)$recommendation |>
-               replicate(n=1000) |>
+               replicate(n = 1000) |>
                mean(),
             .options = furrr_options(seed = 123)
           )
@@ -192,7 +202,7 @@ STCHAa <- (1:13) |>
 STCHAb <- (1:13) |>
           future_map_dbl(
             ~STBP_case1(., incorrect_prior(.))$recommendation |>
-               replicate(n=1000) |>
+               replicate(n = 1000) |>
                mean(),
             .options = furrr_options(seed = 123)
           )
@@ -206,7 +216,7 @@ correct1 <- c(rep(1, 8), rep(0, 5))
 SPRTAs <- (1:13) |>
           future_map_dbl(
             ~SPRT_case1(.)$samples |>
-               replicate(n=1000) |>
+               replicate(n = 1000) |>
                mean(),
             .options = furrr_options(seed = 123)
           )
@@ -214,7 +224,7 @@ SPRTAs <- (1:13) |>
 STCHAs <- (1:13) |>
           future_map_dbl(
             ~STBP_case1(., correct_prior(.))$samples |>
-               replicate(n=1000) |>
+               replicate(n = 1000) |>
                mean(),
             .options = furrr_options(seed = 123)
           )
@@ -222,7 +232,7 @@ STCHAs <- (1:13) |>
 STCHAas <- (1:13) |>
           future_map_dbl(
             ~STBP_case1(., 0.5)$samples |>
-               replicate(n=1000) |>
+               replicate(n = 1000) |>
                mean(),
             .options = furrr_options(seed = 123)
           )
@@ -230,10 +240,12 @@ STCHAas <- (1:13) |>
 STCHAbs <- (1:13) |>
           future_map_dbl(
             ~STBP_case1(., incorrect_prior(.))$samples |>
-               replicate(n=1000) |>
+               replicate(n = 1000) |>
                mean(),
             .options = furrr_options(seed = 123)
           )
+
+plan(sequential) # back to sequential computing (housekeeping)
 
 #########
 # Metrics

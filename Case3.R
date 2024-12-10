@@ -54,9 +54,19 @@ STBP_case3 <- function(s, ns, prior = 0.5) {
 #############
 # Simulations
 #############
+
+# For the sake of efficiency, this code runs simulations with future’s parallel 
+# processing capabilities using the package furrr.
+
+# Simulations can also be run with conventional, sequential processing. 
+# Code provided in Seq_simulations.R
+
 require(furrr)
 set.seed(123)
-plan(multisession, workers=13)
+
+ncores <- 13 # Set the number of available cores
+
+plan(multisession, workers = ncores)
 
 means_det <- c(0.01, 0.05, 0.1, 0.15, 0.2) # tested means
 
@@ -66,7 +76,7 @@ means_det <- c(0.01, 0.05, 0.1, 0.15, 0.2) # tested means
 
 beta1 <- means_det |> future_map_dbl(
             ~((STBP_case3(s = ., ns = 1)$result) |>
-              replicate(n=1000) > 0) |>
+              replicate(n = 1000) > 0) |>
               which() |>
               length() /
               1000,
@@ -76,7 +86,7 @@ beta1 <- means_det |> future_map_dbl(
 
 beta3 <- means_det |> future_map_dbl(
             ~((STBP_case3(s = ., ns = 3)$result) |>
-              replicate(n=1000) > 0) |>
+              replicate(n = 1000) > 0) |>
               which() |>
               length() /
               1000,
@@ -87,7 +97,7 @@ beta3 <- means_det |> future_map_dbl(
 
 beta5 <- means_det |> future_map_dbl(
           ~((STBP_case3(s = ., ns = 5)$result) |>
-            replicate(n=1000) > 0) |>
+            replicate(n = 1000) > 0) |>
             which() |>
             length() /
             1000,
@@ -96,7 +106,7 @@ beta5 <- means_det |> future_map_dbl(
 
 beta10 <- means_det |> future_map_dbl(
             ~((STBP_case3(s = ., ns = 10)$result) |>
-              replicate(n=1000) > 0) |>
+              replicate(n = 1000) > 0) |>
               which() |>
               length() /
               1000,
@@ -106,41 +116,31 @@ beta10 <- means_det |> future_map_dbl(
 # Sample size
 
 size1 <- means_det |> future_map_dbl(
-            ~((STBP_case3(s = ., ns = 1)$bouts) |>
-              replicate(n=1000) > 0) |>
-              which() |>
-              length() /
-              1000,
+            ~STBP_case3(s = ., ns = 1)$bouts |>
+              replicate(n = 1000) |>
+              mean(),
             .options = furrr_options(seed = 123)
           )
 
 
 size3 <- means_det |> future_map_dbl(
-            ~((STBP_case3(s = ., ns = 3)$bouts) |>
-              replicate(n=1000) > 0) |>
-              which() |>
-              length() /
-              1000,
+            ~STBP_case3(s = ., ns = 3)$bouts |>
+              replicate(n = 1000) |>
+              mean(),
             .options = furrr_options(seed = 123)
           )
 
-
-
 size5 <- means_det |> future_map_dbl(
-          ~((STBP_case3(s = ., ns = 5)$bouts) |>
-            replicate(n=1000) > 0) |>
-            which() |>
-            length() /
-            1000,
-            .options = furrr_options(seed = 123)
+          ~STBP_case3(s = ., ns = 5)$bouts |>
+            replicate(n = 1000) |>
+            mean(),
+          .options = furrr_options(seed = 123)
         )
 
 size10 <- means_det |> future_map_dbl(
-            ~((STBP_case3(s = ., ns = 10)$bouts) |>
-              replicate(n=1000) > 0) |>
-              which() |>
-              length() /
-              1000,
+            ~STBP_case3(s = ., ns = 10)$bouts |>
+              replicate(n = 1000) |>
+              mean(),
             .options = furrr_options(seed = 123)
           )
 
@@ -180,6 +180,7 @@ betaGreen10 <- means_det |> future_map_dbl(
                 .options = furrr_options(seed = 123)
               )
 
+plan(sequential) # back to sequential computing (housekeeping)
 
 # Sample sizes when the species is actually absent
 

@@ -124,10 +124,19 @@ STBP_case2 <- function(s, ns, prior1 = 0.5) {
 #############
 # Simulations
 #############
+
+# For the sake of efficiency, this code runs simulations with future’s parallel 
+# processing capabilities using the package furrr.
+
+# Simulations can also be run with conventional, sequential processing. 
+# Code provided in Seq_simulations.R
+
 require(furrr)
 set.seed(123)
-plan(multisession, workers=13)
 
+ncores <- 13 # Set the number of available cores
+
+plan(multisession, workers = ncores)
 
 # Decisions
 
@@ -135,7 +144,7 @@ repl_SPRT <- function(ns){
   levels <- seq(0.1, 1, 0.1)
   result <- levels |> future_map_dbl(
               ~simu_SPRT(., ns)$result |>
-                replicate(n=1000) |>
+                replicate(n = 1000) |>
                 mean(),
               .options = furrr_options(seed = 123)
             )
@@ -152,7 +161,7 @@ repl_SCPTA1 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
   result <- levels |> future_map_dbl(
               ~STBP_case2(., ns, prior1 = .)$result |>
-                replicate(n=1000) |>
+                replicate(n = 1000) |>
                 mean(),
               .options = furrr_options(seed = 123)
             )
@@ -170,7 +179,7 @@ repl_SCPTA <- function(ns){
   levels <- seq(0.1, 1, 0.1)
   result <- levels |> future_map_dbl(
               ~STBP_case2(., ns)$result |>
-                replicate(n=1000) |>
+                replicate(n = 1000) |>
                 mean(),
               .options = furrr_options(seed = 123)
             )
@@ -189,7 +198,7 @@ repl_SCPTA2 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
   result <- levels |> future_map_dbl(
               ~STBP_case2(., ns, prior1 = 1 - .)$result |>
-                replicate(n=1000) |>
+                replicate(n = 1000) |>
                 mean(),
               .options = furrr_options(seed = 123)
             )
@@ -209,7 +218,7 @@ repl_SPRTs <- function(ns){
   levels <- seq(0.1, 1, 0.1)
   result <- levels |> future_map_dbl(
               ~simu_SPRT(., ns)$bouts |>
-                replicate(n=1000) |>
+                replicate(n = 1000) |>
                 mean(),
               .options = furrr_options(seed = 123)
             )
@@ -226,7 +235,7 @@ repl_SCPTAs1 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
   result <- levels |> future_map_dbl(
               ~STBP_case2(., ns, prior1 = .)$bouts |>
-                replicate(n=1000) |>
+                replicate(n = 1000) |>
                 mean(),
               .options = furrr_options(seed = 123)
             )
@@ -245,7 +254,7 @@ repl_SCPTAs <- function(ns){
   levels <- seq(0.1, 1, 0.1)
   result <- levels |> future_map_dbl(
               ~STBP_case2(., ns)$bouts |>
-                replicate(n=1000) |>
+                replicate(n = 1000) |>
                 mean(),
               .options = furrr_options(seed = 123)
             )
@@ -263,7 +272,7 @@ repl_SCPTAs2 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
   result <- levels |> future_map_dbl(
               ~STBP_case2(., ns, prior1 = 1 - .)$bouts |>
-                replicate(n=1000) |>
+                replicate(n = 1000) |>
                 mean(),
               .options = furrr_options(seed = 123)
             )
@@ -278,6 +287,7 @@ result30CPAs2 <- repl_SCPTAs2(30)
 
 correct2 <- c(rep(1, 5), rep(0, 5))
 
+plan(sequential) # back to sequential computing (housekeeping)
 
 #########
 # Metrics
