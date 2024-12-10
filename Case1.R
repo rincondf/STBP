@@ -8,7 +8,7 @@
 require(truncdist)
 source("STBP.R")
 
-# function to estimate k parameter from NB distributions 
+# Function to estimate parameter k for NB distributions 
 # (from Rincon et al. 2021)
 
 estimate_k <- function(mean) {
@@ -42,6 +42,7 @@ k_9 <- estimate_k(9)
 
 # low intercept for stop line for negative binomial distribution
 # (from Binns, Nyrop and Werf, 2000)
+
 low_int_nb <- function(alpha, beta, mu0, mu1, k_est){
   (log(beta / (1 - alpha))) /
   (log((mu1 * (mu0 + k_est)) / (mu0 * (mu1 + k_est))))
@@ -54,6 +55,7 @@ lower_criterion_intercept <- low_int_nb(alpha = 0.1,
                                         k_est = k_9)
 
 # hi intercept for stop line
+
 hi_int_nb <- function(alpha, beta, mu0, mu1, k_est){
   (log((1 - beta) / (alpha))) / 
   (log((mu1 * (mu0 + k_est)) / (mu0 * (mu1 + k_est))))
@@ -67,6 +69,7 @@ higher_criterion_intercept <- hi_int_nb(alpha = 0.1,
                                         k_est = k_9)
 
 # slope for both lines
+
 criterion_slope_nb <- function(alpha, beta, mu0, mu1, k_est){
   (k_est * log((mu1 + k_est) / (mu0 + k_est))) /
     (log((mu1 * (mu0 + k_est)) / (mu0 * (mu1 + k_est))))
@@ -79,6 +82,7 @@ criteria_slope <- criterion_slope_nb(alpha = 0.1,
                                      k_est = k_9)
 
 # Functions for stop lines
+
 low_criterion_line <- function(x){
   criteria_slope * x + lower_criterion_intercept
 }
@@ -88,6 +92,7 @@ hi_criterion_line <- function(x){
 }
 
 # procedure to simulate SPRT
+
 SPRT_case1 <- function(d){
   samples <- rep(NA, 100)
   pool <- rnbinom(mu = d, size = estimate_k_stoch(d), n = 6000)

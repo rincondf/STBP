@@ -6,9 +6,10 @@ source("STBP.R")
 #Fixed-sample-size approach
 ###########################
 
-# Type II error (Eq. 10b in the text and used for figure 3)
+# Type II error (Eq. 11b in the text and used for figure 3a)
+
 beta_fun <- function(m, n) {
-  exp(-n*m)
+  exp(-n * m)
 }
 
 #####################################################
@@ -16,6 +17,7 @@ beta_fun <- function(m, n) {
 #####################################################
 
 # Procedure to simulate Bayesian posterior probabilities
+
 STBP_case3 <- function(s, ns, prior = 0.5) {
   # generate population pool to sample from
   pool <- rpois(100000, lambda = s)
