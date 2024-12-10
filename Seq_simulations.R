@@ -1,6 +1,4 @@
-#############
 # Sequential simulations
-#############
 
 # This code runs all simulations with conventional sequential computing 
 # processing. This takes longer than parallel computing. Code that runs 
@@ -8,9 +6,9 @@
 # cases' files.
 
 
-############
+#---------------------------------------------------------------------------
 # Case 1
-###########
+#---------------------------------------------------------------------------
 
 # Decisions
 
@@ -137,27 +135,27 @@ STCHAbs <- c(sum(replicate(1000, STBP_case1(1, 0.9)$samples))/1000,
              sum(replicate(1000, STBP_case1(13, 0.1)$samples))/1000)
 
 
-#########
+#---------------------------------------------------------------------------
 # Metrics case 1
-#########
+#---------------------------------------------------------------------------
 
 # Overall error rate
 sum(1 - (1 - abs(correct1 - SPRTA))) / 13 # for SPRT
-sum(1 - (1 - abs(correct1 - STCHA))) / 13 # for STBP with correct init priors
-sum(1 - (1 - abs(correct1 - STCHAa))) / 13 # for STBP with naive init priors
-sum(1 - (1 - abs(correct1 - STCHAb))) / 13 # for STBP with incorrect init priors
+sum(1 - (1 - abs(correct1 - STCHA))) / 13 # STBP, correct init priors
+sum(1 - (1 - abs(correct1 - STCHAa))) / 13 # STBP, naive init priors
+sum(1 - (1 - abs(correct1 - STCHAb))) / 13 # STBP, incorrect init priors
 
 # Type II error
 sum(1 - (1 - abs(correct1[9:13] - SPRTA[9:13]))) / 5 # for SPRT
-sum(1 - (1 - abs(correct1[9:13] - STCHA[9:13]))) / 5 # for STBP with correct init priors
-sum(1 - (1 - abs(correct1[9:13] - STCHAa[9:13]))) / 5 # for STBP with naive init priors
-sum(1 - (1 - abs(correct1[9:13] - STCHAb[9:13]))) / 5 # for STBP with incorrect init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHA[9:13]))) / 5 # STBP, correct init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHAa[9:13]))) / 5 # STBP, naive init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHAb[9:13]))) / 5 # STBP, incorrect init priors
 
 # Type I error
 sum(1 - (1 - abs(correct1[1:8] - SPRTA[1:8]))) / 8 # for SPRT
-sum(1 - (1 - abs(correct1[1:8] - STCHA[1:8]))) / 8 # for STBP with correct init priors
-sum(1 - (1 - abs(correct1[1:8] - STCHAa[1:8]))) / 8 # for STBP with naive init priors
-sum(1 - (1 - abs(correct1[1:8] - STCHAb[1:8]))) / 8 # for STBP with incorrect init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHA[1:8]))) / 8 # STBP, correct init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHAa[1:8]))) / 8 # STBP, naive init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHAb[1:8]))) / 8 # STBP, incorrect init priors
 
 # Mean sample sizes required
 mean(SPRTAs)
@@ -168,11 +166,9 @@ mean(STCHAbs)
 
 
 
-
-
-########
+#---------------------------------------------------------------------------
 # Case 2
-########
+#---------------------------------------------------------------------------
 
 # Decisions
 
@@ -339,9 +335,9 @@ result30CPAs2 <- repl_SCPTAs2(30)
 correct2 <- c(rep(1, 5), rep(0, 5))
 
 
-#############
+#---------------------------------------------------------------------------
 # Metrics case 2
-############
+#---------------------------------------------------------------------------
 
 # Overall error rate
 
@@ -516,9 +512,9 @@ mean(c(mean(result10CPAs2),
 
 
 
-#############
+#---------------------------------------------------------------------------
 # Case 3
-#############
+#---------------------------------------------------------------------------
 
 means_det <- c(0.01, 0.05, 0.1, 0.15, 0.2) # tested means
 

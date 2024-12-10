@@ -2,9 +2,9 @@
 
 source("STBP.R")
 
-###########################
-#Fixed-sample-size approach
-###########################
+#---------------------------------------------------------------------------
+# Fixed-sample-size approach
+#---------------------------------------------------------------------------
 
 # Type II error (Eq. 11b in the text and used for figure 3a)
 
@@ -12,9 +12,9 @@ beta_fun <- function(m, n) {
   exp(-n * m)
 }
 
-#####################################################
+#---------------------------------------------------------------------------
 # Sequential test of Bayesian posterior probabilities
-#####################################################
+#---------------------------------------------------------------------------
 
 # Procedure to simulate Bayesian posterior probabilities
 
@@ -53,9 +53,9 @@ STBP_case3 <- function(s, ns, prior = 0.5) {
 }
 
 
-#############
+#---------------------------------------------------------------------------
 # Simulations
-#############
+#---------------------------------------------------------------------------
 
 # For the sake of efficiency, this code runs simulations with future’s parallel 
 # processing capabilities using the package furrr.

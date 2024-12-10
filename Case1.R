@@ -1,8 +1,8 @@
-# Case 1: Testing static population sizes through purely sequential sampling
+# Case 1: Testing static population densities through purely sequential sampling
 
-#####
-#SPRT
-#####
+#---------------------------------------------------------------------------
+# SPRT
+#---------------------------------------------------------------------------
 
 
 require(truncdist)
@@ -117,9 +117,9 @@ SPRT_case1 <- function(d){
 }
 
 
-#####################################################
+#---------------------------------------------------------------------------
 # Sequential test of Bayesian posterior probabilities
-#####################################################
+#---------------------------------------------------------------------------
 
 # Procedure to simulate Sequential test of Bayesian posterior probabilities
 
@@ -153,9 +153,9 @@ STBP_case1 <- function(pop_mean, prior){
   ))
 }
 
-#############
+#---------------------------------------------------------------------------
 # Simulations
-#############
+#---------------------------------------------------------------------------
 
 # For the sake of efficiency, this code runs simulations with future’s parallel 
 # processing capabilities using the package furrr.
@@ -252,27 +252,27 @@ STCHAbs <- (1:13) |>
 
 plan(sequential) # back to sequential computing (housekeeping)
 
-#########
+#---------------------------------------------------------------------------
 # Metrics
-#########
+#---------------------------------------------------------------------------
 
 # Overall error rate
 sum(1 - (1 - abs(correct1 - SPRTA))) / 13 # for SPRT
-sum(1 - (1 - abs(correct1 - STCHA))) / 13 # for STBP with correct init priors
-sum(1 - (1 - abs(correct1 - STCHAa))) / 13 # for STBP with naive init priors
-sum(1 - (1 - abs(correct1 - STCHAb))) / 13 # for STBP with incorrect init priors
+sum(1 - (1 - abs(correct1 - STCHA))) / 13 # STBP, correct init priors
+sum(1 - (1 - abs(correct1 - STCHAa))) / 13 # STBP, naive init priors
+sum(1 - (1 - abs(correct1 - STCHAb))) / 13 # STBP, incorrect init priors
 
 # Type II error
 sum(1 - (1 - abs(correct1[9:13] - SPRTA[9:13]))) / 5 # for SPRT
-sum(1 - (1 - abs(correct1[9:13] - STCHA[9:13]))) / 5 # for STBP with correct init priors
-sum(1 - (1 - abs(correct1[9:13] - STCHAa[9:13]))) / 5 # for STBP with naive init priors
-sum(1 - (1 - abs(correct1[9:13] - STCHAb[9:13]))) / 5 # for STBP with incorrect init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHA[9:13]))) / 5 # STBP, correct init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHAa[9:13]))) / 5 # STBP, naive init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHAb[9:13]))) / 5 # STBP, incorrect init priors
 
 # Type I error
 sum(1 - (1 - abs(correct1[1:8] - SPRTA[1:8]))) / 8 # for SPRT
-sum(1 - (1 - abs(correct1[1:8] - STCHA[1:8]))) / 8 # for STBP with correct init priors
-sum(1 - (1 - abs(correct1[1:8] - STCHAa[1:8]))) / 8 # for STBP with naive init priors
-sum(1 - (1 - abs(correct1[1:8] - STCHAb[1:8]))) / 8 # for STBP with incorrect init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHA[1:8]))) / 8 # STBP, correct init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHAa[1:8]))) / 8 # STBP, naive init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHAb[1:8]))) / 8 # STBP, incorrect init priors
 
 # Mean sample sizes required
 mean(SPRTAs)

@@ -1,8 +1,8 @@
-# Case 2: Testing dynamic population sizes through group sequential sampling
+# Case 2: Testing dynamic population densities through group sequential sampling
 
-#######
-#T-SPRT
-#######
+#---------------------------------------------------------------------------
+# T-SPRT
+#---------------------------------------------------------------------------
 
 # Endemic and Outbreak trajectories (Table S1) (from Pedigo and Schaik 1984)
 
@@ -101,9 +101,9 @@ simu_SPRT <- function(s, ns) {
 }
 
 
-#####################################################
+#---------------------------------------------------------------------------
 # Sequential test of Bayesian posterior probabilities
-#####################################################
+#---------------------------------------------------------------------------
 
 # Procedure to simulate Sequential test of Bayesian posterior probabilities
 
@@ -129,9 +129,9 @@ STBP_case2 <- function(s, ns, prior1 = 0.5) {
 }
 
 
-#############
+#---------------------------------------------------------------------------
 # Simulations
-#############
+#---------------------------------------------------------------------------
 
 # For the sake of efficiency, this code runs simulations with future’s parallel 
 # processing capabilities using the package furrr.
@@ -297,9 +297,9 @@ correct2 <- c(rep(1, 5), rep(0, 5))
 
 plan(sequential) # back to sequential computing (housekeeping)
 
-#########
+#---------------------------------------------------------------------------
 # Metrics
-#########
+#---------------------------------------------------------------------------
 
 # Overall error rate
 
