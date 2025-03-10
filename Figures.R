@@ -26,7 +26,7 @@ abline(v = 9, lty = 3, lwd = 2)
 
 par(mar = c(5, 9, 2, 2) + 0.1)
 
-plot(seq(1, 13), SPRTAs, type = "o", ylim = c(0, 50), ylab = "Average No. of\nsamples\n", 
+plot(seq(1, 13), SPRTAs, type = "o", ylim = c(0, 50), ylab = "Average # of\nsamples\n", 
      xlab = "Individuals per sampling unit", lwd = 2, cex.lab = 1.8, cex.axis = 1.8,
      yaxt = "n")
 points(seq(1, 13), STCHAs, col = imola(10)[1], type = "o", lwd = 2)
@@ -40,8 +40,6 @@ abline(v = 9, lty = 3, lwd = 2)
 mtext("b", side = 3, cex = 2, outer = FALSE, line = 1, adj = 0, at = -4, xpd  = NA)
 
 
-
-
 #  FIGURE 2
 
 require(khroma)
@@ -49,14 +47,14 @@ require(khroma)
 batlowW <- color("batlowW")
 imola <- color("imola")
 levels <- seq(0.1, 1, 0.1)
-par(mfrow = c(2, 3), oma = c(3, 5, 0, 0))
+par(mfrow = c(2, 3), oma = c(3, 5.6, 0, 0))
 
 
 par(mar = c(0.5, 4, 4, 0) + 0.1)
 plot(levels, 1 - abs(correct2 - result5), type = "o", xlab = "", ylab = "", lwd = 2, 
      cex.axis = 1.8, ylim = c(0, 1), yaxt = "n", xaxt = "n")
 
-title(ylab = "Proportion of\ncorrect decisions\n", cex.lab = 2, xpd = NA)
+title(ylab = "Proportion of\ncorrect decisions\n", cex.lab = 2.5, xpd = NA)
 
 axis(2, at = seq(0, 1, 0.2), labels = TRUE, cex.axis = 1.8, las = 2)
 axis(1, at = seq(0, 1, 0.2), labels = FALSE)
@@ -119,7 +117,7 @@ par(mar = c(2, 4, 2.5, 0) + 0.1)
 plot(levels, result5s, type = "o", ylim = c(0, 9), ylab = "", 
      xlab = "", lwd = 2, cex.lab = 1.8, cex.axis = 1.8, yaxt = "n")
 
-title(ylab = "Average No. of\nsampling bouts\n", cex.lab = 2, xpd = NA)
+title(ylab = "Average # of\nsampling bouts\n", cex.lab = 2.5, xpd = NA)
 
 axis(2, at = seq(0, 8, 2), labels = TRUE, cex.axis = 1.8, las = 2)
 axis(1, at = seq(0, 1, 0.2), labels = FALSE)
@@ -179,7 +177,6 @@ mtext("f", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
 title(xlab = "Outbreak severity", cex.lab = 2.5, outer = TRUE, line = 1.8)
 
 
-
 # FIGURE 3
 
 require(khroma)
@@ -216,7 +213,7 @@ mtext("a", side = 3, cex = 2, line = 1, adj = 0, at = -0.05, xpd  = NA)
 
 par(mar = c(5, 9, 2, 4) + 0.1)
 
-plot(means_det, size1, type = "o", ylab = "Average No. of\nsampling bouts\n", xlab = "Individuals per sampling unit", 
+plot(means_det, size1, type = "o", ylab = "Average # of\nsampling bouts\n", xlab = "Individuals per sampling unit", 
      lwd = 2, cex.lab = 1.8, cex.axis = 1.8, ylim = c(0, 20), col = imola(10)[6], yaxt = "n")
 
 axis(2, at = seq(0, 20, 5), labels = TRUE, cex.axis = 1.8, las = 2)
@@ -226,7 +223,6 @@ points(means_det, size5, type = "o", lwd = 2, lty = 3, col = imola(10)[6])
 points(means_det, size10, type = "o", lwd = 2, lty = 4, col = imola(10)[6])
 
 mtext("b", side = 3, cex = 2, line = 1, adj = 0, at = -0.05, xpd  = NA)
-
 
 
 # FIGURE 4
@@ -243,5 +239,5 @@ barplot(fig4, names.arg = c(1, 3, 5, 10),  yaxt = "n",
         cex.names = 2, col = c(imola(10)[8], imola(10)[6], imola(10)[1]), border = NA, beside = TRUE)
 
 axis(2, at = seq(0, 20, 5), labels = TRUE, cex.axis = 1.8, las = 2)
-title(ylab = "No. of sampling bouts", cex.lab = 2, xpd = NA, line = 4)
+title(ylab = "Number of sampling bouts", cex.lab = 2, xpd = NA, line = 4)
 title(xlab = "Subsample size", cex.lab = 2, xpd = NA, line = 3.5)

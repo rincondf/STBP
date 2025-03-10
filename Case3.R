@@ -2,97 +2,22 @@
 
 source("STBP.R")
 
-###########################
-#Fixed-sample-size approach
-###########################
+#---------------------------------------------------------------------------
+# Fixed-sample-size approach
+#---------------------------------------------------------------------------
 
-# Type II error (Eq. 10b in the text and used for figure 3)
+# Type II error (Eq. 11b in the text and used for figure 3a)
+
 beta_fun <- function(m, n) {
-  exp(-n*m)
+  exp(-n * m)
 }
 
-#####################################################
+#---------------------------------------------------------------------------
 # Sequential test of Bayesian posterior probabilities
-#####################################################
-
-# Sequential test of Bayesian posterior probabilities (Eq. 11 in the text)
-calc_posterior_case3 <- function(data,
-                           hypothesis,
-                           likelihood_func,
-                           prior,
-                           upper_bnd = Inf) {
-  likelihood <- function(x) {
-    prod(likelihood_func(data, x))
-  }
-
-  H1 <- prior *
-            likelihood(hypothesis)
-  H0 <- (1 - prior) *
-            integrate(
-               Vectorize(likelihood),
-               lower = hypothesis,
-               upper = Inf
-            )$value
-  posterior <- H1 / (H0 + H1)
-  posterior
-}
-
-# Version of stpb function for simple hypotheses
-
-STBP_simpleH <- function(data,
-                         hypotheses,
-                         likelihood_func,
-                         prior = 0.5,
-                         upper_bnd = Inf,
-                         lower_criterion,
-                         upper_criterion) {
-  
-  # useful to treat data as a matrix to to able to process group or
-  # single sequential data
-  
-  if(is.vector(data)) data <- matrix(data, 1, length(data))
-  
-  # If hypothesis is just a single repeated value,
-  # make a vector of that value repeated as many times as there are bouts.
-  # This makes it so that the user can input either a single hypothesis,
-  # or a trajectory of hypotheses.
-  
-  if(length(hypotheses) == 1) hypotheses <- rep(hypotheses, ncol(data))
-  
-  # Init vector with length equal to number of sampling bouts
-  # and with initial prior as its first value
-  posteriors <- c(prior, rep(NA, ncol(data) - 1))
-  for(i in 1: ncol(data)) {
-    bout = data[, i]
-    posteriors[i + 1] = calc_posterior_case3(bout,
-                                             hypotheses[i],
-                                             likelihood_func,
-                                             prior = posteriors[i],
-                                             upper_bnd = upper_bnd)
-    # Break from iteration early if early_return is true,
-    # the minimum iterations have been reached, and
-    # if either of the decision criteria have been reached
-    if(((posteriors[i + 1] < lower_criterion) ||
-        (posteriors[i + 1] > upper_criterion))
-    ) break
-  }
-  
-  response <- if(posteriors[i + 1] < lower_criterion) 1 else 0
-  indices_above <- which(posteriors > upper_criterion)
-  indices_below <- which(posteriors < lower_criterion)
-  
-  return(list(
-    probabilities = posteriors,
-    recommendation = response,
-    num_iterations = i,
-    decision_indices = list(
-      above = indices_above,
-      below = indices_below
-    )
-  ))
-}
+#---------------------------------------------------------------------------
 
 # Procedure to simulate Bayesian posterior probabilities
+
 STBP_case3 <- function(s, ns, prior = 0.5) {
   # generate population pool to sample from
   pool <- rpois(100000, lambda = s)
@@ -128,9 +53,22 @@ STBP_case3 <- function(s, ns, prior = 0.5) {
 }
 
 
-#############
+#---------------------------------------------------------------------------
 # Simulations
-#############
+#---------------------------------------------------------------------------
+
+# For the sake of efficiency, this code runs simulations with future’s parallel 
+# processing capabilities using the package furrr.
+
+# Simulations can also be run with conventional, sequential processing. 
+# Code provided in Seq_simulations.R
+
+require(furrr)
+set.seed(123)
+
+ncores <- 13 # Set the number of available cores
+
+plan(multisession, workers = ncores)
 
 means_det <- c(0.01, 0.05, 0.1, 0.15, 0.2) # tested means
 
@@ -138,130 +76,129 @@ means_det <- c(0.01, 0.05, 0.1, 0.15, 0.2) # tested means
 
 # Type II error
 
-beta1 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  beta1[i] <- (1000 |>
-                replicate(STBP_case3(s = means_det[i], ns = 1)$result) > 0) |>
-                which() |>
-                length() / 1000
-}
-
-
-beta3 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  beta3[i] <- (1000 |>
-                replicate(STBP_case3(s = means_det[i], ns = 3)$result) > 0) |>
-                which() |>
-                length() / 1000
-}
+beta1 <- means_det |> future_map_dbl(
+            ~((STBP_case3(s = ., ns = 1)$result) |>
+              replicate(n = 1000) > 0) |>
+              which() |>
+              length() /
+              1000,
+            .options = furrr_options(seed = 123)
+          )
 
 
-beta5 <- rep(NA, 5)
+beta3 <- means_det |> future_map_dbl(
+            ~((STBP_case3(s = ., ns = 3)$result) |>
+              replicate(n = 1000) > 0) |>
+              which() |>
+              length() /
+              1000,
+            .options = furrr_options(seed = 123)
+          )
 
-for(i in 1: 5) {
-  beta5[i] <- (1000 |>
-                replicate(STBP_case3(s = means_det[i], ns = 5)$result) > 0) |>
-                which() |>
-                length() / 1000
-}
 
-beta10 <- rep(NA, 5)
 
-for(i in 1: 5) {
-  beta10[i] <- (1000 |>
-                replicate(STBP_case3(s = means_det[i], ns = 10)$result) > 0) |>
-                which() |>
-                length() / 1000
-}
+beta5 <- means_det |> future_map_dbl(
+          ~((STBP_case3(s = ., ns = 5)$result) |>
+            replicate(n = 1000) > 0) |>
+            which() |>
+            length() /
+            1000,
+            .options = furrr_options(seed = 123)
+          )
+
+beta10 <- means_det |> future_map_dbl(
+            ~((STBP_case3(s = ., ns = 10)$result) |>
+              replicate(n = 1000) > 0) |>
+              which() |>
+              length() /
+              1000,
+            .options = furrr_options(seed = 123)
+          )
 
 # Sample size
 
-size1 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  size1[i] <- replicate(1000, STBP_case3(s = means_det[i], ns = 1)$bouts) |>
-              mean()
-}
-
-size3 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  size3[i] <- replicate(1000, STBP_case3(s = means_det[i], ns = 3)$bouts) |>
-              mean()
-}
+size1 <- means_det |> future_map_dbl(
+            ~STBP_case3(s = ., ns = 1)$bouts |>
+              replicate(n = 1000) |>
+              mean(),
+            .options = furrr_options(seed = 123)
+          )
 
 
-size5 <- rep(NA, 5)
+size3 <- means_det |> future_map_dbl(
+            ~STBP_case3(s = ., ns = 3)$bouts |>
+              replicate(n = 1000) |>
+              mean(),
+            .options = furrr_options(seed = 123)
+          )
 
-for(i in 1: 5) {
-  size5[i] <- replicate(1000, STBP_case3(s = means_det[i], ns = 5)$bouts) |>
-              mean()
-}
+size5 <- means_det |> future_map_dbl(
+          ~STBP_case3(s = ., ns = 5)$bouts |>
+            replicate(n = 1000) |>
+            mean(),
+          .options = furrr_options(seed = 123)
+        )
 
-size10 <- rep(NA, 5)
-
-for(i in 1: 5) {
-  size10[i] <- replicate(1000, STBP_case3(s = means_det[i], ns = 10)$bouts) |>
-               mean()
-}
+size10 <- means_det |> future_map_dbl(
+            ~STBP_case3(s = ., ns = 10)$bouts |>
+              replicate(n = 1000) |>
+              mean(),
+            .options = furrr_options(seed = 123)
+          )
 
 
 # Fixed-sample-size approach
 
-betaGreen30 <- rep(NA, 5)
+betaGreen30 <- means_det |> future_map_dbl(
+                ~(rpois(lambda = ., n = 100000) |>
+                    sample(size = 30, replace = FALSE) |>
+                    sum() |>
+                    replicate(n = 1000) > 0) |>
+                  which() |>
+                  length() /
+                  1000,
+                .options = furrr_options(seed = 123)
+              )
 
-for(i in 1: 5) {
-  betaGreen30[i] <- (1000 |>
-                     replicate(rpois(lambda = means_det[i], n = 100000) |>
-                               sample(size = 30, replace = FALSE) |>
-                               sum()) > 0
-                              ) |>
-                     which() |>
-                     length() / 1000
-}
+betaGreen20 <- means_det |> future_map_dbl(
+                ~(rpois(lambda = ., n = 100000) |>
+                    sample(size = 20, replace = FALSE) |>
+                    sum() |>
+                    replicate(n = 1000) > 0) |>
+                  which() |>
+                  length() /
+                  1000,
+                .options = furrr_options(seed = 123)
+              )
 
-betaGreen20 <- rep(NA, 5)
+betaGreen10 <- means_det |> future_map_dbl(
+                ~(rpois(lambda = ., n = 100000) |>
+                    sample(size = 10, replace = FALSE) |>
+                    sum() |>
+                    replicate(n = 1000) > 0) |>
+                  which() |>
+                  length() /
+                  1000,
+                .options = furrr_options(seed = 123)
+              )
 
-for(i in 1: 5) {
-  betaGreen20[i] <- (1000 |>
-                     replicate(rpois(lambda = means_det[i], n = 100000) |>
-                               sample(size = 20, replace = FALSE) |>
-                               sum()) > 0
-                              ) |>
-                     which() |>
-                     length() / 1000
-}
+plan(sequential) # back to sequential computing (housekeeping)
 
-betaGreen10 <- rep(NA, 5)
+# Sample sizes when the species is actually absent
 
-for(i in 1: 5) {
-  betaGreen10[i] <- (1000 |>
-                     replicate(rpois(lambda = means_det[i], n = 100000)|>
-                               sample(size = 10, replace = FALSE) |>
-                               sum()) > 0
-                              ) |>
-                     which() |>
-                     length() / 1000
-}
+# With naive priors
+size1_0 <- STBP_case3(s = 0, ns = 1)$bouts
+size3_0 <- STBP_case3(s = 0, ns = 3)$bouts
+size5_0 <- STBP_case3(s = 0, ns = 5)$bouts
+size10_0 <- STBP_case3(s = 0, ns = 10)$bouts
 
-
-size1_0 <- replicate(1000, STBP_case3(s = 0, ns = 1)$bouts) |>
-           mean()
-size3_0 <- replicate(1000, STBP_case3(s = 0, ns = 3)$bouts) |>
-           mean()
-size5_0 <- replicate(1000, STBP_case3(s = 0, ns = 5)$bouts) |>
-           mean()
-size10_0 <- replicate(1000, STBP_case3(s = 0, ns = 10)$bouts) |>
-            mean()
-
-
+# With good reasons to expect the species present (low credibility for H1)
 s1alt <- STBP_case3(s = 0, ns = 1, prior = 0.1)$bouts
 s3alt <- STBP_case3(s = 0, ns = 3, prior = 0.1)$bouts
 s5alt <- STBP_case3(s = 0, ns = 5, prior = 0.1)$bouts
 s10alt <- STBP_case3(s = 0, ns = 10, prior = 0.1)$bouts
 
+# With good reasons to expect the species absent (high credibility for H1)
 s1a <- STBP_case3(s = 0, ns = 1, prior = 0.9)$bouts
 s3a <- STBP_case3(s = 0, ns = 3, prior = 0.9)$bouts
 s5a <- STBP_case3(s = 0, ns = 5, prior = 0.9)$bouts

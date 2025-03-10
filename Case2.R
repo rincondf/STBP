@@ -1,50 +1,58 @@
-# Case 2: Testing dynamic population sizes through group sequential sampling
+# Case 2: Testing dynamic population densities through group sequential sampling
 
-#######
-#T-SPRT
-#######
+#---------------------------------------------------------------------------
+# T-SPRT
+#---------------------------------------------------------------------------
 
 # Endemic and Outbreak trajectories (Table S1) (from Pedigo and Schaik 1984)
+
 m0 <- c(2, 3, 4, 7, 8, 6, 3, 2, 1)
 m1 <- c(4, 5, 16, 18, 23, 38, 34, 26, 25)
 
-# upper stop threshold (Eq. 6a in the text)
+# upper stop threshold (Eq. 7a in the text)
+
 upper <- function(DDs, m1, m0, ns) {
   log((1 - 0.01)/(0.01)) +
   (1.16 * cumsum(ns * log((1.16 + m1) / ((1.16 + m0)))))
 }
 
-# lower stop threshold (Eq. 6b in the text)
+# lower stop threshold (Eq. 7b in the text)
+
 lower <- function(DDs, m1, m0, ns) {
   log((0.01)/(1 - 0.01)) +
   (1.16 * cumsum(ns * log((1.16 + m1) / ((1.16 + m0)))))
 }
 
-# count weights (Eq. 7 in the text)
+# count weights (Eq. 8 in the text)
+
 calc_weight <- function(m1, m0) {
   log(m1 / m0) - log((1.16 + m1) / (1.16 + m0))
 }
 
-# testing trajectories (Eq. 8 in the text)
+# testing trajectories (Eq. 9 in the text)
+
 test_traj <- function(s) {
   m0^(1-s) * m1^(s)
 }
 
 # Generation of testing trajectories from a NB distribution
+
 produce_obs <- function(ns, s) {
   samD <- matrix(NA, ns, 9)
   mu <- test_traj(s)
   for(i in 1: 9) {
     samD[, i] <- sample(rnbinom(10000, size = 1.16,
-                                mu = mu[i]), ns)
+                                mu = mu[i]), ns, replace = FALSE)
   }
   return(list(regular = samD, cumulative = rowCumsums(samD)))
 }
 
-require(matrixStats)
-source("STBP.R")
+
 
 # Simulation of the T-SPRT
+
+require(matrixStats)
+source("STBP.R")
 
 simu_SPRT <- function(s, ns) {
 
@@ -93,11 +101,12 @@ simu_SPRT <- function(s, ns) {
 }
 
 
-#####################################################
+#---------------------------------------------------------------------------
 # Sequential test of Bayesian posterior probabilities
-#####################################################
+#---------------------------------------------------------------------------
 
 # Procedure to simulate Sequential test of Bayesian posterior probabilities
+
 STBP_case2 <- function(s, ns, prior1 = 0.5) {
   trajectory <- test_traj(0.5)
   samples <- produce_obs(ns = ns, s = s)$regular
@@ -120,21 +129,33 @@ STBP_case2 <- function(s, ns, prior1 = 0.5) {
 }
 
 
-#############
+#---------------------------------------------------------------------------
 # Simulations
-#############
+#---------------------------------------------------------------------------
+
+# For the sake of efficiency, this code runs simulations with future’s parallel 
+# processing capabilities using the package furrr.
+
+# Simulations can also be run with conventional, sequential processing. 
+# Code provided in Seq_simulations.R
+
+require(furrr)
+set.seed(123)
+
+ncores <- 13 # Set the number of available cores
+
+plan(multisession, workers = ncores)
 
 # Decisions
 
 repl_SPRT <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000, simu_SPRT(levels[i], ns)$result) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~simu_SPRT(., ns)$result |>
+                replicate(n = 1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -146,15 +167,12 @@ result30 <- repl_SPRT(30)
 
 repl_SCPTA1 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-  priors <- levels
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000,
-                           STBP_case2(levels[i], ns, prior1 = priors[i])$result
-                          ) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns, prior1 = .)$result |>
+                replicate(n = 1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -167,13 +185,12 @@ result30CPA1 <- repl_SCPTA1(30)
 
 repl_SCPTA <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000, STBP_case2(levels[i], ns)$result) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns)$result |>
+                replicate(n = 1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -187,15 +204,12 @@ result30CPA <- repl_SCPTA(30)
 
 repl_SCPTA2 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-  priors <- 1-levels
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000,
-                           STBP_case2(levels[i], ns, prior1 = priors[i])$result
-                          ) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns, prior1 = 1 - .)$result |>
+                replicate(n = 1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -210,13 +224,12 @@ result30CPA2 <- repl_SCPTA2(30)
 
 repl_SPRTs <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000, simu_SPRT(levels[i], ns)$bouts) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~simu_SPRT(., ns)$bouts |>
+                replicate(n = 1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -228,15 +241,13 @@ result30s <- repl_SPRTs(30)
 
 repl_SCPTAs1 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-  priors <- levels
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000,
-                           STBP_case2(levels[i], ns, prior1 = priors[i])$bouts
-                          ) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns, prior1 = .)$bouts |>
+                replicate(n = 1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
+  result
   result
 }
 
@@ -249,14 +260,12 @@ result30CPAs1 <- repl_SCPTAs1(30)
 
 repl_SCPTAs <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000,
-                           STBP_case2(levels[i], ns)$bouts) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns)$bouts |>
+                replicate(n = 1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
   result
 }
 
@@ -269,15 +278,13 @@ result30CPAs <- repl_SCPTAs(30)
 
 repl_SCPTAs2 <- function(ns){
   levels <- seq(0.1, 1, 0.1)
-  result <- rep(NA, 10)
-  priors <- 1-levels
-
-  for(i in 1: 10) {
-    result[i] <- replicate(1000,
-                           STBP_case2(levels[i], ns, prior1 = priors[i])$bouts
-                          ) |>
-                 sum() / 1000
-  }
+  result <- levels |> future_map_dbl(
+              ~STBP_case2(., ns, prior1 = 1 - .)$bouts |>
+                replicate(n = 1000) |>
+                mean(),
+              .options = furrr_options(seed = 123)
+            )
+  result
   result
 }
 
@@ -288,12 +295,11 @@ result30CPAs2 <- repl_SCPTAs2(30)
 
 correct2 <- c(rep(1, 5), rep(0, 5))
 
+plan(sequential) # back to sequential computing (housekeeping)
 
-
-
-#########
+#---------------------------------------------------------------------------
 # Metrics
-#########
+#---------------------------------------------------------------------------
 
 # Overall error rate
 
@@ -372,7 +378,7 @@ mean(c(mean(1 - (1 - abs(correct2[1:4] - result5CPA2[1:4]))),
 
 
 
-# Type I error for STPB excluding n = 5 
+# Type I error for STPB excluding n = 5
 
 # STBP with naive init priors
 mean(c(

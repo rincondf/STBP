@@ -1,14 +1,14 @@
-# Case 1: Testing static population sizes through purely sequential sampling
+# Case 1: Testing static population densities through purely sequential sampling
 
-#####
-#SPRT
-#####
+#---------------------------------------------------------------------------
+# SPRT
+#---------------------------------------------------------------------------
 
 
 require(truncdist)
 source("STBP.R")
 
-# function to estimate k parameter from NB distributions 
+# Function to estimate parameter k for NB distributions 
 # (from Rincon et al. 2021)
 
 estimate_k <- function(mean) {
@@ -42,6 +42,7 @@ k_9 <- estimate_k(9)
 
 # low intercept for stop line for negative binomial distribution
 # (from Binns, Nyrop and Werf, 2000)
+
 low_int_nb <- function(alpha, beta, mu0, mu1, k_est){
   (log(beta / (1 - alpha))) /
   (log((mu1 * (mu0 + k_est)) / (mu0 * (mu1 + k_est))))
@@ -54,6 +55,7 @@ lower_criterion_intercept <- low_int_nb(alpha = 0.1,
                                         k_est = k_9)
 
 # hi intercept for stop line
+
 hi_int_nb <- function(alpha, beta, mu0, mu1, k_est){
   (log((1 - beta) / (alpha))) / 
   (log((mu1 * (mu0 + k_est)) / (mu0 * (mu1 + k_est))))
@@ -67,6 +69,7 @@ higher_criterion_intercept <- hi_int_nb(alpha = 0.1,
                                         k_est = k_9)
 
 # slope for both lines
+
 criterion_slope_nb <- function(alpha, beta, mu0, mu1, k_est){
   (k_est * log((mu1 + k_est) / (mu0 + k_est))) /
     (log((mu1 * (mu0 + k_est)) / (mu0 * (mu1 + k_est))))
@@ -79,6 +82,7 @@ criteria_slope <- criterion_slope_nb(alpha = 0.1,
                                      k_est = k_9)
 
 # Functions for stop lines
+
 low_criterion_line <- function(x){
   criteria_slope * x + lower_criterion_intercept
 }
@@ -88,6 +92,7 @@ hi_criterion_line <- function(x){
 }
 
 # procedure to simulate SPRT
+
 SPRT_case1 <- function(d){
   samples <- rep(NA, 100)
   pool <- rnbinom(mu = d, size = estimate_k_stoch(d), n = 6000)
@@ -112,11 +117,12 @@ SPRT_case1 <- function(d){
 }
 
 
-#####################################################
+#---------------------------------------------------------------------------
 # Sequential test of Bayesian posterior probabilities
-#####################################################
+#---------------------------------------------------------------------------
 
-# procedure to simulate Sequential test of Bayesian posterior probabilities
+# Procedure to simulate Sequential test of Bayesian posterior probabilities
+
 STBP_case1 <- function(pop_mean, prior){
   samples <- rep(NA, 100)
   pool <- rnbinom(mu = pop_mean, size = estimate_k_stoch(pop_mean), n = 6000)
@@ -147,70 +153,64 @@ STBP_case1 <- function(pop_mean, prior){
   ))
 }
 
-#############
+#---------------------------------------------------------------------------
 # Simulations
-#############
+#---------------------------------------------------------------------------
 
+# For the sake of efficiency, this code runs simulations with future’s parallel 
+# processing capabilities using the package furrr.
+
+# Simulations can also be run with conventional, sequential processing. 
+# Code provided in Seq_simulations.R
+
+require(furrr)
+set.seed(123)
+
+ncores <- 13 # Set the number of available cores
+
+plan(multisession, workers = ncores)
+
+correct_prior <- function(hypothesis) {
+  if (hypothesis == 9) return(0.5)
+  ifelse(hypothesis < 9, 0.1, 0.9)
+}
+incorrect_prior <- function(hypothesis) {
+  ifelse(hypothesis >= 9, 0.1, 0.9)
+}
 
 # Decisions
 
-SPRTA <- c(sum(replicate(1000, SPRT_case1(1)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(2)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(3)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(4)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(5)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(6)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(7)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(8)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(9)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(10)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(11)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(12)$recommendation))/1000,
-           sum(replicate(1000, SPRT_case1(13)$recommendation))/1000)
+SPRTA <- (1:13) |>
+          future_map_dbl(
+            ~SPRT_case1(.)$recommendation |>
+               replicate(n = 1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
-STCHA <- c(sum(replicate(1000, STBP_case1(1, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(2, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(3, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(4, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(5, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(6, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(7, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(8, 0.1)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(9, 0.5)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(10, 0.9)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(11, 0.9)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(12, 0.9)$recommendation))/1000,
-           sum(replicate(1000, STBP_case1(13, 0.9)$recommendation))/1000)
+STCHA <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., correct_prior(.))$recommendation |>
+               replicate(n = 1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
+STCHAa <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., 0.5)$recommendation |>
+               replicate(n = 1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
-STCHAa <- c(sum(replicate(1000, STBP_case1(1, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(2, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(3, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(4, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(5, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(6, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(7, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(8, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(9, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(10, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(11, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(12, 0.5)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(13, 0.5)$recommendation))/1000)
-
-
-STCHAb <- c(sum(replicate(1000, STBP_case1(1, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(2, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(3, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(4, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(5, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(6, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(7, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(8, 0.9)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(9, 0.1)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(10, 0.1)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(11, 0.1)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(12, 0.1)$recommendation))/1000,
-            sum(replicate(1000, STBP_case1(13, 0.1)$recommendation))/1000)
+STCHAb <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., incorrect_prior(.))$recommendation |>
+               replicate(n = 1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
 correct1 <- c(rep(1, 8), rep(0, 5))
 
@@ -218,86 +218,61 @@ correct1 <- c(rep(1, 8), rep(0, 5))
 # Sample size
 
 
-SPRTAs <- c(sum(replicate(1000, SPRT_case1(1)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(2)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(3)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(4)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(5)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(6)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(7)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(8)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(9)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(10)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(11)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(12)$samples))/1000,
-            sum(replicate(1000, SPRT_case1(13)$samples))/1000)
+SPRTAs <- (1:13) |>
+          future_map_dbl(
+            ~SPRT_case1(.)$samples |>
+               replicate(n = 1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
-STCHAs <- c(sum(replicate(1000, STBP_case1(1, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(2, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(3, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(4, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(5, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(6, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(7, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(8, 0.1)$samples))/1000,
-            sum(replicate(1000, STBP_case1(9, 0.5)$samples))/1000,
-            sum(replicate(1000, STBP_case1(10, 0.9)$samples))/1000,
-            sum(replicate(1000, STBP_case1(11, 0.9)$samples))/1000,
-            sum(replicate(1000, STBP_case1(12, 0.9)$samples))/1000,
-            sum(replicate(1000, STBP_case1(13, 0.9)$samples))/1000)
+STCHAs <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., correct_prior(.))$samples |>
+               replicate(n = 1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
+STCHAas <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., 0.5)$samples |>
+               replicate(n = 1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
-STCHAas <- c(sum(replicate(1000, STBP_case1(1, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(2, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(3, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(4, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(5, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(6, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(7, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(8, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(9, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(10, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(11, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(12, 0.5)$samples))/1000,
-             sum(replicate(1000, STBP_case1(13, 0.5)$samples))/1000)
+STCHAbs <- (1:13) |>
+          future_map_dbl(
+            ~STBP_case1(., incorrect_prior(.))$samples |>
+               replicate(n = 1000) |>
+               mean(),
+            .options = furrr_options(seed = 123)
+          )
 
+plan(sequential) # back to sequential computing (housekeeping)
 
-STCHAbs <- c(sum(replicate(1000, STBP_case1(1, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(2, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(3, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(4, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(5, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(6, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(7, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(8, 0.9)$samples))/1000,
-             sum(replicate(1000, STBP_case1(9, 0.1)$samples))/1000,
-             sum(replicate(1000, STBP_case1(10, 0.1)$samples))/1000,
-             sum(replicate(1000, STBP_case1(11, 0.1)$samples))/1000,
-             sum(replicate(1000, STBP_case1(12, 0.1)$samples))/1000,
-             sum(replicate(1000, STBP_case1(13, 0.1)$samples))/1000)
-
-
-#########
+#---------------------------------------------------------------------------
 # Metrics
-#########
+#---------------------------------------------------------------------------
 
 # Overall error rate
 sum(1 - (1 - abs(correct1 - SPRTA))) / 13 # for SPRT
-sum(1 - (1 - abs(correct1 - STCHA))) / 13 # for STBP with correct init priors
-sum(1 - (1 - abs(correct1 - STCHAa))) / 13 # for STBP with naive init priors
-sum(1 - (1 - abs(correct1 - STCHAb))) / 13 # for STBP with incorrect init priors
+sum(1 - (1 - abs(correct1 - STCHA))) / 13 # STBP, correct init priors
+sum(1 - (1 - abs(correct1 - STCHAa))) / 13 # STBP, naive init priors
+sum(1 - (1 - abs(correct1 - STCHAb))) / 13 # STBP, incorrect init priors
 
 # Type II error
 sum(1 - (1 - abs(correct1[9:13] - SPRTA[9:13]))) / 5 # for SPRT
-sum(1 - (1 - abs(correct1[9:13] - STCHA[9:13]))) / 5 # for STBP with correct init priors
-sum(1 - (1 - abs(correct1[9:13] - STCHAa[9:13]))) / 5 # for STBP with naive init priors
-sum(1 - (1 - abs(correct1[9:13] - STCHAb[9:13]))) / 5 # for STBP with incorrect init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHA[9:13]))) / 5 # STBP, correct init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHAa[9:13]))) / 5 # STBP, naive init priors
+sum(1 - (1 - abs(correct1[9:13] - STCHAb[9:13]))) / 5 # STBP, incorrect init priors
 
 # Type I error
 sum(1 - (1 - abs(correct1[1:8] - SPRTA[1:8]))) / 8 # for SPRT
-sum(1 - (1 - abs(correct1[1:8] - STCHA[1:8]))) / 8 # for STBP with correct init priors
-sum(1 - (1 - abs(correct1[1:8] - STCHAa[1:8]))) / 8 # for STBP with naive init priors
-sum(1 - (1 - abs(correct1[1:8] - STCHAb[1:8]))) / 8 # for STBP with incorrect init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHA[1:8]))) / 8 # STBP, correct init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHAa[1:8]))) / 8 # STBP, naive init priors
+sum(1 - (1 - abs(correct1[1:8] - STCHAb[1:8]))) / 8 # STBP, incorrect init priors
 
 # Mean sample sizes required
 mean(SPRTAs)
