@@ -1,6 +1,11 @@
+load("seq_paper_results.RData") # Run only in case you want to replicate the 
+# data and figures in published in "Sequential testing of complementary 
+# hypotheses about population density". Otherwise, you should run 
+# cases 1, 2 and 3 first.
+
 # FIGURE 1
 
-tiff("Figure1HD.tif", res = 300, width = 2500, height = 2500)
+tiff("Figures/Figure1HD.tif", res = 300, width = 2500, height = 2500)
 
 require(khroma)
 
@@ -45,7 +50,7 @@ dev.off()
 
 #  FIGURE 2
 
-tiff("Figure2HD.tif", res = 300, width = 3500, height = 2000)
+tiff("Figures/Figure2HD.tif", res = 300, width = 3500, height = 2000)
 
 require(khroma)
 
@@ -186,7 +191,7 @@ dev.off()
 
 # FIGURE 3
 
-tiff("Figure3HD.tif", res = 300, width = 2500, height = 2500)
+tiff("Figures/Figure3HD.tif", res = 300, width = 2500, height = 2500)
 
 require(khroma)
 
@@ -239,7 +244,7 @@ dev.off()
 
 # FIGURE 4
 
-tiff("Figure4HD.tif", res = 300, width = 2000, height = 2000)
+tiff("Figures/Figure4HD.tif", res = 300, width = 2000, height = 2000)
 
 require(khroma)
 

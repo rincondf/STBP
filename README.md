@@ -1,4 +1,2 @@
 # STBP
-Sequential test of Bayesian posterior probabilities. This repository presents the required code to run study cases and produce figures in the manuscript titled "Sequential testing of complementary hypotheses about population density".
-
-By default, simulations are run using parallel computing, but the code for conventional sequential computing is provided in Seq_simulations.R
+Sequential test of Bayesian posterior probabilities. This repository presents the required code to run study cases and produce figures in the manuscript titled "Sequential testing of complementary hypotheses about population density". The results reported in the manuscript can be found in the R environment "seq_paper_results.RData", but data may also be simulated de novo with slightly different results. By default, simulations are run using parallel computing, but the code for conventional sequential computing is provided in "Seq_simulations.R".
