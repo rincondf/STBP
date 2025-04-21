@@ -27,16 +27,16 @@ probability density. This reduces the resulting posterior probability from an en
 the equation as the prior probability for the next iteration. It also eliminates the difficult computational exercise of integrating over constantly changing
 joint probability density functions which forms the major limitation for typical Bayesian methods. Integrals only need be calculated over your desired likelihood
 function, for which all commonly used distributions already have closed-form solutions in the form of their cumulative density functions! While our method had a
-greater rate of false-positives compared to the SPRT in purely sequential designs, it outperformed it in group sequential designs (FIGURE HERE), requiring less sampling and
+greater rate of false-positives compared to the SPRT in purely sequential designs, it outperformed it in group sequential designs `(FIGURE HERE)`, requiring less sampling and
 errors scaled more favorably with increasing sample sizes than the SPRT. We also tested our method as a procedure for invasive species monitoring, where it
 demonstrated higher power for equal sample sizes than conventional approaches, with further reductions in required sampling when prior belief in the absence of
-the invasive species is already high (FIGURE HERE). We also found that our simplified model quickly converges on the results produced by more complex Bayesian techniques
-requiring difficult integrations. (INSERT FIGURE THAT WE SENT TO THE REVIEWER OF THE MODELS CONVERGING) 
+the invasive species is already high `(FIGURE HERE)`. We also found that our simplified model quickly converges on the results produced by more complex Bayesian techniques
+requiring difficult integrations. `(INSERT FIGURE THAT WE SENT TO THE REVIEWER OF THE MODELS CONVERGING)` 
 
 Because our method allows for both variable sample sizes and sequential comparisons for changing-but-related hypotheses, it also has potential applications
 in continuous monitoring for signal processing, fraud detection, forensics, and healthcare contexts (like that of changes in glucose levels or heart rate).
 For example, by continuously comparing the average patient mortality rates for certain surgical procedures to
-that of individual surgeons, we found that Harold Shipman's serial killings could have been detected with great confidence as early as (INSERT DATE AND FIGURE).
+that of individual surgeons, we found that Harold Shipman's serial killings could have been detected with great confidence as early as `(INSERT TIME AND FIGURE)`.
 
 Our method represents innovation in a section of the ecological and agricultural literature which has remained largely stagnant for nearly many decades.
 The SPRT, introduced in 1945, is still the most widely used method for sequential analysis, and the fixed-sample size method used in invasive species
