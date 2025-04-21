@@ -1,4 +1,11 @@
+load("seq_paper_results.RData") # Run only in case you want to replicate the 
+# data and figures in published in "Sequential testing of complementary 
+# hypotheses about population density". Otherwise, you should run 
+# cases 1, 2 and 3 first.
+
 # FIGURE 1
+
+tiff("Figures/Figure1HD.tif", res = 300, width = 2500, height = 2500)
 
 require(khroma)
 
@@ -39,8 +46,11 @@ abline(v = 9, lty = 3, lwd = 2)
 
 mtext("b", side = 3, cex = 2, outer = FALSE, line = 1, adj = 0, at = -4, xpd  = NA)
 
+dev.off()
 
 #  FIGURE 2
+
+tiff("Figures/Figure2HD.tif", res = 300, width = 3500, height = 2000)
 
 require(khroma)
 
@@ -176,8 +186,12 @@ mtext("f", side = 3, cex = 1.8, line = 0.5, adj = 0, at = -0.02, xpd  = NA)
 
 title(xlab = "Outbreak severity", cex.lab = 2.5, outer = TRUE, line = 1.8)
 
+dev.off()
+
 
 # FIGURE 3
+
+tiff("Figures/Figure3HD.tif", res = 300, width = 2500, height = 2500)
 
 require(khroma)
 
@@ -224,8 +238,13 @@ points(means_det, size10, type = "o", lwd = 2, lty = 4, col = imola(10)[6])
 
 mtext("b", side = 3, cex = 2, line = 1, adj = 0, at = -0.05, xpd  = NA)
 
+dev.off()
+
+
 
 # FIGURE 4
+
+tiff("Figures/Figure4HD.tif", res = 300, width = 2000, height = 2000)
 
 require(khroma)
 
@@ -241,3 +260,5 @@ barplot(fig4, names.arg = c(1, 3, 5, 10),  yaxt = "n",
 axis(2, at = seq(0, 20, 5), labels = TRUE, cex.axis = 1.8, las = 2)
 title(ylab = "Number of sampling bouts", cex.lab = 2, xpd = NA, line = 4)
 title(xlab = "Subsample size", cex.lab = 2, xpd = NA, line = 3.5)
+
+dev.off()
