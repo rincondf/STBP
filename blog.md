@@ -22,7 +22,7 @@ that explicitly supports variable sample sizes over time, threshold-style hypoth
 
 It works by making a crucial simplification of typical Bayesian methods: instead of the specification of proper prior probability distributions, it
 assigns a single probability to the possibility of your parameter of inference being greater than the threshold and the complementary probability for the
-possibility of it being less than that threshold. This is comparison to the typical procedure of giving each possible value of the parameter its own
+possibility of it being less than that threshold. This is in comparison to the typical procedure of giving each possible value of the parameter its own
 probability density. This reduces the resulting posterior probability from an entire distribution to a single number, which we can then plug back into
 the equation as the prior probability for the next iteration. It also eliminates the difficult computational exercise of integrating over constantly changing
 joint probability density functions which forms the major limitation for typical Bayesian methods. Integrals only need be calculated over your desired likelihood
