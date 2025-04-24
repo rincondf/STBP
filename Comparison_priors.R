@@ -15,7 +15,7 @@ d2 <- matrix(rep(seq(0, 10), each = 2), 2, 11)
 
 # n = 5
 
-d5 <- matrix(rep(seq(0, 10), each =5), 5, 11)
+d5 <- matrix(rep(seq(0, 10), each = 5), 5, 11)
 
 # n = 10
 
