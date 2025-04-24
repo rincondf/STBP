@@ -44,7 +44,7 @@ male_probs <- stbp(data = male_vict$CSdeaths,
 # Figure
 #---------------------------------------------------------------------------
 
-jpeg("Figures/Fig3Post.jpeg", res = 96, width = 930, height = 670)
+jpeg("Blog versions/Fig3Post.jpeg", res = 96, width = 930, height = 670)
 
 par(mfrow = c(2, 1))
 

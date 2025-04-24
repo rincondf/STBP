@@ -102,7 +102,7 @@ STBP_P <- function(data) {
 # FIGURE
 #---------------------------------------------------------------------------
 
-jpeg("Figures/Fig2Post.jpeg", res = 96, width = 930, height = 590)
+jpeg("Blog versions/Fig2Post.jpeg", res = 96, width = 930, height = 590)
 
 par(mfrow = c(2, 2))
 
