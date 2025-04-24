@@ -102,6 +102,7 @@ STBP_P <- function(data) {
 # FIGURE
 #---------------------------------------------------------------------------
 
+jpeg("Figures/Fig2Post.jpeg", res = 96, width = 930, height = 590)
 
 par(mfrow = c(2, 2))
 
@@ -172,3 +173,5 @@ text(1, 0.8, "n = 10", cex = 2)
 legend(6, 0.8, legend=c("Gamma(1, 0.139)", "Gamma(10, 1.934)", "No proper prior\n(our approach)"),  
        fill = c("red","black", "blue"), bty = "n", title = "Prior", title.adj = 0.2, title.cex = 1.2,
        y.intersp = 1.2)
+
+dev.off()
