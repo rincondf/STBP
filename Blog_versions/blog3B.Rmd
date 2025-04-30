@@ -62,10 +62,10 @@ just by increasing sample size.
 ![*Comparison between posterior probabilities for a Poisson random variable obtained
 from two configurations of Gamma conjugate priors (black and
 red curves) and our approach, which omits an explicit
-density function for $\mu$ and includes a single probability of $P(\ mu \ge \psi)$ (blue curves). As sample size increases,
+density function for $\mu$ and includes a single probability of $P(\mu \ge \psi)$ (blue curves). As sample size increases,
 all models converge to a similar set of posterior probabilities
 and the requirement of specifying conjugate priors relaxes. R code
-for this analysis is [here](https://github.com/rincondf/ STBP/blob/main/Comparison_priors.R).*](Fig2Post.jpeg)
+for this analysis is [here](https://github.com/rincondf/STBP/blob/main/Comparison_priors.R).*](Fig2Post.jpeg)
 
 <br>
 
@@ -75,8 +75,8 @@ also has potential applications in continuous monitoring for signal
 processing, fraud detection, forensics, and clinical tests (like that
 of changes in glucose levels, heart rate, or mortality).
 For example, if the expected patient mortality
-rates for certain surgical procedures were continuously compared to that of individual
-surgeons through STBP, we found that [Harold Shipman's serial killings](https:// en.wikipedia.org/wiki/Harold_Shipman) could have been detected
+rates for certain clinical procedures were continuously compared to that of individual
+practitioners through STBP, we found that [Harold Shipman's serial killings](https://en.wikipedia.org/wiki/Harold_Shipman) could have been detected
 with great confidence as early as in early 80s
 for female victims and early 90s for male victims.
 Unfortunately, the infamous "Dr. Death" was convicted as late
@@ -96,7 +96,7 @@ lines denote probabilities of 0.95 and 0.99. So, by
 more death certificates for patients aged 65 or older
 than the average of practitioners in Wales. Data was
 extracted from
-[Baker & Donaldson (2001)](https://www.researchgate.net/ publication/320035425_Harold_Shipmans_clinical_practice_1974-1998_A_clinical_audit_commissioned_by_the_Chief_Medical_Officer)
+[Baker & Donaldson (2001)](https://www.researchgate.net/publication/320035425_Harold_Shipmans_clinical_practice_1974-1998_A_clinical_audit_commissioned_by_the_Chief_Medical_Officer)
 and the R code for this analysis is [here](https://github.com/rincondf/STBP/blob/main/ShipmanAnalysis.R).*](Fig3Post.jpeg)
 
 <br>
