@@ -9,14 +9,10 @@ output:
 
 Predictions of insect populations can help growers prepare for their season and manage their farms.
 There are two typical approaches to informed pest management: phenology models and sampling. Phenology models
-relate heat accumulation after winter to pest emergence; while sampling relies on on-site sampling which reflect
-pest population densities to inform decisions about controlling pest populations. A drawback of existing methods is that phenology and
-sampling remain unlinked in the models; growers must rely on their intuition and experiences to
-connect the dots. To solve this, my collegues Diego Rincon, David Crowder, and I developed a methodology for
-creating site-specific predictions that link phenology models to sampling data by adjusting their shape. However, we still needed a
-statistical procedure to use these "profiles" to allow growers to see the probability of exceeding their maximum tolerable
-pest density given their early-season sampling data. This started an offshoot of our work, which culminated in
-publishing "Sequential testing of complementary hypotheses about population density" in MEE about our new statistical method,
+relate heat accumulation to pest emergence after winter to inform about timing of control actions; while sampling relies on on-site data collection at regular intervals (daily, weekly, etc.) to measure
+pest population densities and inform on the need for control actions. A drawback of existing methods is that phenology and
+sampling remain unlinked in the models, and growers must rely on their intuition and experiences to
+connect the dots. One way to get around this is to establish a maximum tolerable number of individual pests captured during sampling for each heat accumulation value over time, based on a phenology model and an economic threshold. However, data collected by growers come from a variable number of sampling units and counts are hard to compare with a dynamic threshold. Thus, the challenge was to find a statistical procedure that allow growers to see the probability of exceeding their maximum tolerable pest density from their sampling data and as soon in the season as possible. This started an offshoot of our work, which culminated in publishing "Sequential testing of complementary hypotheses about population density" in MEE about our new statistical method,
 the Sequential Test of Bayesian Posterior Probabilties, or the STBP.
 
 ![*Typical apple orchard in the state of Washington (USA),
@@ -26,7 +22,7 @@ traps. Photo taken by Tobin Northfield.*](Fig1Post.jpg)
 
 <br>
 
-Data for pest sampling comes in week-to-week in batches, so rather than traditional hypothesis testing tools which consider
+Data for pest sampling come at regular basis in batches, so rather than traditional hypothesis testing tools which consider
 all samples at the same time, we began searching the literature for sequential analysis, which iteratively
 updates predictions as new data arrives. The existing methods we found, however, all had limitations that fell short of our needs.
 The most popular sequential data analysis procedure is the Sequential Probability Ratio Test (SPRT), introduced
@@ -41,7 +37,7 @@ enough we found methods utilizing Bayes' Rule to the domain of sequential hypoth
 Morgan & Cressie's Variable Probability Ratio Test (VPRT). Their method, while providing compelling properties, still
 requires non-complementary hypothesis ratios and comes with the typical computational complexities of Bayesian methods.
 The STBP can be seen as building on the VPRT and aims to provide an intuitive procedure that explicitly supports variable sample sizes over time,
-explicit threshold-style hypotheses, and even dynamic trajectories of hypotheses.
+explicit threshold-style hypotheses, and even dynamic trajectories as hypotheses.
 
 It works by making a crucial simplification of typical Bayesian methods: instead of the specification of
 proper prior probability distributions, it assigns a single probability to the parameter of inference being greater (
@@ -78,9 +74,9 @@ and sequential comparisons for changing-but-related hypotheses, it
 also has potential applications in continuous monitoring for signal
 processing, fraud detection, forensics, and clinical tests (like that
 of changes in glucose levels, heart rate, or mortality).
-For example, by continuously comparing the expected patient mortality
-rates for certain surgical procedures to that of individual
-surgeons, we found that [Harold Shipman's serial killings](https:// en.wikipedia.org/wiki/Harold_Shipman) could have been detected
+For example, if the expected patient mortality
+rates for certain surgical procedures were continuously compared to that of individual
+surgeons through STBP, we found that [Harold Shipman's serial killings](https:// en.wikipedia.org/wiki/Harold_Shipman) could have been detected
 with great confidence as early as in early 80s
 for female victims and early 90s for male victims.
 Unfortunately, the infamous "Dr. Death" was convicted as late
@@ -121,3 +117,7 @@ use and extensible. The source code can be found
 in this [GitHub repository](https://github.com/rincondf/STBP),
 and we will be working to release an R package
 to the CRAN repository in the coming weeks.
+
+<br>
+
+*Thanks to Emily Rampone for her valuable revision to this post!*
