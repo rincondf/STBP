@@ -13,7 +13,7 @@ relate heat accumulation to pest emergence after winter to inform about timing o
 pest population densities and inform on the need for control actions. A drawback of existing methods is that phenology and
 sampling remain unlinked in the models, and growers must rely on their intuition and experiences to
 connect the dots. One way to get around this is to establish a maximum tolerable number of individual pests captured during sampling for each heat accumulation value over time, based on a phenology model and an economic threshold. However, data collected by growers come from a variable number of sampling units and counts are hard to compare with a dynamic threshold. Thus, the challenge was to find a statistical procedure that allow growers to see the probability of exceeding their maximum tolerable pest density from their sampling data and as soon in the season as possible. This started an offshoot of our work, which culminated in publishing "Sequential testing of complementary hypotheses about population density" in MEE about our new statistical method,
-the Sequential Test of Bayesian Posterior Probabilties, or the STBP.
+the Sequential Test of Bayesian Posterior Probabilities, or the STBP.
 
 ![*Typical apple orchard in the state of Washington (USA),
 where pest management decisions are made based on growers'
