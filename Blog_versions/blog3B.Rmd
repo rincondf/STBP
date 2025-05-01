@@ -75,7 +75,7 @@ also has potential applications in continuous monitoring for signal
 processing, fraud detection, forensics, and clinical tests (like that
 of changes in glucose levels, heart rate, or mortality).
 For example, if the expected patient mortality
-rates for certain clinical procedures were continuously compared to that of individual
+rates for certain clinical procedures were continuously compared to those of individual
 practitioners through STBP, we found that [Harold Shipman's serial killings](https://en.wikipedia.org/wiki/Harold_Shipman) could have been detected
 with great confidence as early as in early 80s
 for female victims and early 90s for male victims.
