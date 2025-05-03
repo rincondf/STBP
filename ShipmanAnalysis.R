@@ -24,7 +24,7 @@ source("STBP.R")
 fem_probs <- stbp(data = female_vict$CSdeaths, 
                   hypotheses = 1.333 * female_vict$CSexpected_est,
                   likelihood_func = function(data, x) {
-                    prod(dpois(data, lambda = x))
+                    dpois(data, lambda = x)
                   },
                   prior = 0.5,
                   lower_criterion = 0,
@@ -33,7 +33,7 @@ fem_probs <- stbp(data = female_vict$CSdeaths,
 male_probs <- stbp(data = male_vict$CSdeaths, 
                    hypotheses = 1.333 * male_vict$CSexpected_est,
                    likelihood_func = function(data, x) {
-                     prod(dpois(data, lambda = x))
+                     dpois(data, lambda = x)
                    },
                    prior = 0.5,
                    lower_criterion = 0,
