@@ -7,13 +7,7 @@ output:
   word_document: default
 ---
 
-Predictions of insect populations can help growers prepare for their season and manage their farms.
-There are two typical approaches to informed pest management: phenology models and sampling. Phenology models
-relate heat accumulation to pest emergence after winter to inform about timing of control actions; while sampling relies on on-site data collection at regular intervals (daily, weekly, etc.) to measure
-pest population densities and inform on the need for control actions. A drawback of existing methods is that phenology and
-sampling remain unlinked in the models, and growers must rely on their intuition and experiences to
-connect the dots. One way to get around this is to establish a maximum tolerable number of individual pests captured during sampling for each heat accumulation value over time, based on a phenology model and an economic threshold. However, data collected by growers come from a variable number of sampling units and counts are hard to compare with a dynamic threshold. Thus, the challenge was to find a statistical procedure that allow growers to see the probability of exceeding their maximum tolerable pest density from their sampling data and as soon in the season as possible. This started an offshoot of our work, which culminated in publishing "Sequential testing of complementary hypotheses about population density" in MEE about our new statistical method,
-the Sequential Test of Bayesian Posterior Probabilities, or the STBP.
+Predictions of insect populations from phenology models and sampling can help growers manage pests and beneficial insects on their farms. Phenology models relate accumulated heat units after winter to pest development and thereby inform timing of control actions, while sampling relies on regular on-site data collection (daily, weekly, etc.) to measure pest population densities and estimate potential damage. A drawback of these methods is that phenology and sampling are often considered independently, and growers must rely on their intuition and experience to connect the dots. One way to address this is to establish a maximum tolerable number of individual pests captured during sampling for each heat accumulation value over time, based on a phenology model and an economic threshold. However, data collected by growers come from a variable number of sampling units, and counts are hard to compare with a dynamic threshold. A challenge is thus to find a statistical procedure that allows growers to see the probability of exceeding their maximum tolerable pest density from their sampling data as early in the season as possible. This started an offshoot of our work, which culminated in publishing “Sequential testing of complementary hypotheses about population density” in MEE about our new statistical method, the Sequential Test of Bayesian Posterior Probabilities, or the STBP.
 
 ![*Typical apple orchard in the state of Washington (USA),
 where pest management decisions are made based on growers'
@@ -22,42 +16,9 @@ traps. Photo taken by Tobin Northfield.*](Fig1Post.jpg)
 
 <br>
 
-Data for pest sampling come at regular basis in batches, so rather than traditional hypothesis testing tools which consider
-all samples at the same time, we began searching the literature for sequential analysis, which iteratively
-updates predictions as new data arrives. The existing methods we found, however, all had limitations that fell short of our needs.
-The most popular sequential data analysis procedure is the Sequential Probability Ratio Test (SPRT), introduced
-in 1945 by Abraham Wald, but it requires fixed sample sizes and would only test non-complementary hypotheses, i.e.
-if average pests per sample are more likely to be 8 vs 10. What we needed was to test complementary hypotheses, i.e. 
-if the average pests per sample are more likely to be greater than or less than 9.
-Furthermore, the original methodology only accounts for testing samples one-at-a-time, and requires complicated
-modifications to support designs where data should be evaluated in batches, which still limit you to a fixed and predetermined sample size
-for each batch. We believed that the problem of iteratively updating our knowledge
-and predictions based on new data aligns with the philosophy of Bayesian statistics, and sure
-enough we found methods utilizing Bayes' Rule to the domain of sequential hypothesis testing in
-Morgan & Cressie's Variable Probability Ratio Test (VPRT). Their method, while providing compelling properties, still
-requires non-complementary hypothesis ratios and comes with the typical computational complexities of Bayesian methods.
-The STBP can be seen as building on the VPRT and aims to provide an intuitive procedure that explicitly supports variable sample sizes over time,
-explicit threshold-style hypotheses, and even dynamic trajectories as hypotheses.
+Data for pest sampling comes regularly in batches, so rather than traditional hypothesis testing tools which consider all samples at the same time, we searched the literature for sequential analysis, which iteratively updates predictions as new data arrives. The existing methods, however, had limitations. The most popular sequential data analysis procedure is the Sequential Probability Ratio Test (SPRT), introduced in 1945 by Abraham Wald, but it requires fixed sample sizes and only tests non-complementary hypotheses. For example, a typical SPRT might compare whether the average pests per sample is more likely to be 8 vs 10. Instead, what we need is a method to test complementary hypotheses, for example whether the average pests per sample is more likely to be greater than or less than 9. Further, the original methodology only accounted for testing samples one-at-a-time, and requires complicated modifications to support designs where data should be evaluated in batches, which still limits you to a fixed and predetermined sample size for each batch. We believed that the problem of iteratively updating our knowledge and predictions based on new data aligns with Bayesian statistics, and we found methods using Bayes’ Rule to the domain of sequential hypothesis testing in Morgan & Cressie’s Variable Probability Ratio Test (VPRT). Their method, while providing compelling properties, still requires non-complementary hypothesis ratios and comes with the typical computational complexities of Bayesian methods. The STBP can be seen as building on the VPRT and aims to provide an intuitive procedure that explicitly supports variable sample sizes over time, explicit threshold-style hypotheses, and even dynamic trajectories as hypotheses.
 
-It works by making a crucial simplification of typical Bayesian methods: instead of the specification of
-proper prior probability distributions, it assigns a single probability to the parameter of inference being greater (
-or less) than the threshold and the complementary probability for it being less (or greater)
-than that threshold. This is in comparison to the typical procedure of giving each possible
-value of the parameter its own probability density. This reduces the resulting posterior probability from
-an entire distribution to a single number, which we can then plug back into the equation
-as the prior probability for the next iteration. It also eliminates the difficult computational exercise
-of integrating over constantly changing joint probability density functions which forms the major limitation for
-typical Bayesian methods. Integrals only need be calculated over your desired likelihood function, for which
-all commonly used distributions already have closed-form solutions in the form of their cumulative
-density functions! While our method had a greater rate of false positives compared to the SPRT
-in one-at-a-time sequential designs, it outperformed it when sequential sampling bouts are made
-of multiple samples. In general, the STBP requires less sampling and errors scaled more favorably
-with increasing sample sizes at each sampling time than the SPRT. We also tested our
-method as a procedure for invasive species monitoring, where it demonstrated higher power for equal sample
-sizes than conventional approaches, with further reductions in required sampling when prior belief in the
-absence of the invasive species is already high. We also found that our simplified model
-quickly converges on the results produced by more complex Bayesian techniques requiring proper conjugate priors
-just by increasing sample size.
+The STBP works by making a crucial simplification of typical Bayesian methods: instead of the specification of proper prior probability distributions, it assigns a single probability to the parameter of inference being greater (or less) than a threshold and the complementary probability for it being less (or greater) than that threshold. This is in comparison to the typical procedure of giving each possible value of the parameter its own probability density. This reduces the resulting posterior probability from an entire distribution to a single number, which we can then plug back into the equation as the prior probability for the next iteration. It also eliminates the computational exercise of integrating over constantly changing joint probability density functions which forms the major limitation for typical Bayesian methods. Integrals only need be calculated over your desired likelihood function, for which all commonly used distributions already have closed-form solutions in the form of their cumulative density functions. While our method had a greater rate of false positives compared to the SPRT in one-at-a-time sequential designs, it outperformed it when sequential sampling bouts are made of multiple samples. In general, the STBP requires less sampling and errors scaled more favorably with increasing sample sizes at each sampling time than the SPRT. We also tested our method as a procedure for invasive species monitoring, where it demonstrated higher power for equal sample sizes than conventional approaches, with further reductions in required sampling when prior belief in the absence of the invasive species is already high. We also found that our simplified model quickly converges on the results produced by more complex Bayesian techniques requiring proper conjugate priors just by increasing sample size.
 
 ![*Comparison between posterior probabilities for a Poisson random variable obtained
 from two configurations of Gamma conjugate priors (black and
@@ -71,7 +32,7 @@ for this analysis is [here](https://github.com/rincondf/STBP/blob/main/Compariso
 
 Because our method allows for both variable sample sizes
 and sequential comparisons for changing-but-related hypotheses, it
-also has potential applications in continuous monitoring for signal
+has potential applications in continuous monitoring for signal
 processing, fraud detection, forensics, and clinical tests (like that
 of changes in glucose levels, heart rate, or mortality).
 For example, if the expected patient mortality
@@ -79,8 +40,7 @@ rates for certain clinical procedures were continuously compared to those of ind
 practitioners through STBP, we found that [Harold Shipman's serial killings](https://en.wikipedia.org/wiki/Harold_Shipman) could have been detected
 with great confidence as early as in early 80s
 for female victims and early 90s for male victims.
-Unfortunately, the infamous "Dr. Death" was convicted as late
-as in January 2000 when he had killed nearly 300 people.
+Unfortunately, the infamous "Dr. Death" was convicted in January 2000 when he had killed nearly 300 people.
 
 ![*(A) Cumulative excess mortality, from the difference between death
 certificates signed by Harold Shipman and expected mortality in
@@ -102,8 +62,7 @@ and the R code for this analysis is [here](https://github.com/rincondf/STBP/blob
 <br>
 
 Our method represents innovation in a section of the ecological
-and agricultural literature which has remained largely stagnant for
-many decades. The SPRT, introduced in 1945, is still
+and agricultural literature which has remained largely stagnant for decades. The SPRT, introduced in 1945, is still
 the most widely used method for sequential analysis, and
 the fixed-sample size method used in invasive species
 monitoring has been used unchanged since its introduction in
@@ -113,10 +72,8 @@ and hope to see others find places in their
 corners of science and industry where it can improve
 their processes and research. To facilitate this, we are
 working on an R package that will be easy to
-use and extensible. The source code can be found
-in this [GitHub repository](https://github.com/rincondf/STBP),
-and we will be working to release an R package
-to the CRAN repository in the coming weeks.
+use, extensible, and available from the CRAN repository in the coming weeks. The source code can be found
+in this [GitHub repository](https://github.com/rincondf/STBP).
 
 <br>
 
